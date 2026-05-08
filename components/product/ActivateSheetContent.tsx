@@ -41,7 +41,7 @@ export function ActivateSheetContent({ onStart }: ActivateSheetContentProps) {
 
 // Approximate height of the sheet — used by BottomSheet to compute slide distance.
 // 24 (top) + 263 (illo) + 16 (gap) + ~64 (title+body) + 16+48+16+12 (CTA) + ~34 safe area ≈ 493
-export const ACTIVATE_SHEET_HEIGHT = 510;
+export const ACTIVATE_SHEET_HEIGHT = 526;
 
 const styles = StyleSheet.create({
   wrap: {
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   cta: {
-    paddingTop: spacing.sm,
+    paddingTop: spacing.xxl,
     paddingHorizontal: spacing.lg,
     width: '100%',
   },
