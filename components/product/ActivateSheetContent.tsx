@@ -45,7 +45,7 @@ export const ACTIVATE_SHEET_HEIGHT = 526;
 
 const styles = StyleSheet.create({
   wrap: {
-    paddingTop: spacing.xxl,
+    paddingTop: spacing.xl,
     alignItems: 'center',
   },
   illo: {

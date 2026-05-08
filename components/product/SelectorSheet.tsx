@@ -44,10 +44,10 @@ export function SelectorSheet({
     onClose();
   };
 
-  // Header (~52) + rows × 56 + CTA region
+  // Header (~56) + rows × 56 + CTA region
   // (16 top + 48 button + 12 + safe-area + ~20 home indicator slot).
   const rowsHeight = options.length * 56;
-  const sheetHeight = 52 + rowsHeight + 16 + 48 + 12 + insets.bottom + 20;
+  const sheetHeight = 56 + rowsHeight + 16 + 48 + 12 + insets.bottom + 20;
 
   return (
     <BottomSheet visible={visible} onClose={onClose} sheetHeight={sheetHeight}>
@@ -70,7 +70,7 @@ export function SelectorSheet({
 
 const styles = StyleSheet.create({
   header: {
-    paddingTop: spacing.lg,
+    paddingTop: spacing.xl,
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.sm,
   },
