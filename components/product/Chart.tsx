@@ -29,7 +29,7 @@ import {
   type ChartPoint,
   type Timeframe,
 } from '@/utils/chart';
-import { fmtUsd, scrubLabel } from '@/utils/format';
+import { fmtUsd, scrubTooltip } from '@/utils/format';
 import { IconButton } from '@/components/ui/IconButton';
 
 const CHART_HEIGHT = 340;
@@ -122,7 +122,7 @@ export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProp
   });
 
   const tooltipStyle = useAnimatedStyle(() => {
-    const TT_W = 96;
+    const TT_W = 140;
     const pt = currentPoints.value[scrubIdx.value];
     const half = TT_W / 2;
     let left = pt.x * scale - half;
@@ -192,11 +192,7 @@ export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProp
   const updateScrubLabel = useCallback((idx: number) => {
     const s = seriesRef.current;
     const seriesIdx = Math.round((idx / (MORPH_N - 1)) * (s.length - 1));
-    const value = s[seriesIdx];
-    setTooltipText({
-      price: fmtUsd(value),
-      time: scrubLabel(activeTf, seriesIdx, s.length),
-    });
+    setTooltipText(scrubTooltip(activeTf, s, seriesIdx));
   }, [activeTf]);
 
   const pan = useMemo(() => Gesture.Pan()
@@ -329,7 +325,7 @@ const styles = StyleSheet.create({
   tooltip: {
     position: 'absolute',
     top: 8,
-    width: 96,
+    width: 140,
     paddingVertical: 6,
     paddingHorizontal: 8,
     borderRadius: 8,

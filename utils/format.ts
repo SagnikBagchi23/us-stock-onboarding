@@ -15,24 +15,58 @@ export function fmtChange(diff: number, pct: number): string {
 
 import type { Timeframe } from './chart';
 
-// Tooltip label for the scrub indicator.
-// `idx` is the position in the full series; `total` is series.length.
-export function scrubLabel(tf: Timeframe, idx: number, total: number): string {
-  const ago = total - 1 - idx;
+// Per-timeframe time scale, matching reference/index.html:1057-1071.
+function pointDate(tf: Timeframe, ago: number): Date {
   const now = new Date();
-  if (tf === '1D') {
-    const t = new Date(now.getTime() - ago * 5 * 60 * 1000);
-    return t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  }
-  if (tf === '1W') {
-    const t = new Date(now.getTime() - ago * 60 * 60 * 1000 * 2);
-    return t.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' });
-  }
+  if (tf === '1D') return new Date(now.getTime() - ago * 5 * 60 * 1000);
+  if (tf === '1W') return new Date(now.getTime() - ago * 2 * 60 * 60 * 1000);
   if (tf === '1M' || tf === '3M' || tf === '6M') {
-    const t = new Date(now.getTime() - ago * 24 * 60 * 60 * 1000);
-    return t.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return new Date(now.getTime() - ago * 24 * 60 * 60 * 1000);
   }
   const t = new Date(now);
   t.setMonth(t.getMonth() - ago);
-  return t.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  return t;
+}
+
+// Format like "9:47AM" — Figma shows no space between minute and AM/PM.
+function fmtTime(d: Date): string {
+  return d
+    .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    .replace(/\s/g, '');
+}
+
+// Format like "28 May".
+function fmtDay(d: Date): string {
+  return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+}
+
+// Returns the price-line and time-line shown in the scrub tooltip.
+// Per Figma:
+//   1D       → price + change%, time-only
+//   1W, 1M   → price, "time, day month"
+//   3M+      → price, "day month"
+export type ScrubTooltip = { price: string; time: string };
+
+export function scrubTooltip(
+  tf: Timeframe,
+  series: number[],
+  idx: number,
+): ScrubTooltip {
+  const ago = series.length - 1 - idx;
+  const value = series[idx];
+  const start = series[0];
+  const d = pointDate(tf, ago);
+
+  if (tf === '1D') {
+    const diff = value - start;
+    const pct = (diff / start) * 100;
+    return {
+      price: `${fmtUsd(value)} (${fmtSigned(pct)}%)`,
+      time: fmtTime(d),
+    };
+  }
+  if (tf === '1W' || tf === '1M') {
+    return { price: fmtUsd(value), time: `${fmtTime(d)}, ${fmtDay(d)}` };
+  }
+  return { price: fmtUsd(value), time: fmtDay(d) };
 }
