@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider } from '@/constants/theme';
 import { dark } from '@/constants/tokens';
+import { PhoneFrame } from '@/components/ui/PhoneFrame';
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -44,13 +45,15 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <ThemeProvider>
           <ExpoStatusBar style="light" backgroundColor={dark.backgroundPrimary} translucent={false} />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              animation: 'slide_from_right',
-              contentStyle: { backgroundColor: dark.backgroundPrimary },
-            }}
-          />
+          <PhoneFrame>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                animation: 'slide_from_right',
+                contentStyle: { backgroundColor: dark.backgroundPrimary },
+              }}
+            />
+          </PhoneFrame>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
