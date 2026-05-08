@@ -25,7 +25,7 @@ export function SelectField({ label, value, placeholder, onPress }: SelectFieldP
 
   return (
     <View style={styles.wrap}>
-      <Text style={[textStyles.bodySmallHeavy, { color: colors.contentSecondary }]}>{label}</Text>
+      <Text style={[textStyles.bodySmall, { color: colors.contentSecondary }]}>{label}</Text>
       <AnimatedPressable
         onPressIn={() => {
           scale.value = withTiming(0.99, { duration: motion.press, easing: easing.out });
