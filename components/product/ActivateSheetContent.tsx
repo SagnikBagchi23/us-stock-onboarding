@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   illo: {
-    width: '100%',
+    width: 360,
     height: 263,
   },
   copy: {
