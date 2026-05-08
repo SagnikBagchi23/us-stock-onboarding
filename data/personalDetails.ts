@@ -1,60 +1,54 @@
 // Option lists for the Personal details select fields.
-// Sourced from the Figma mock at node 2590:177227 and conventional ranges
-// used in the Groww onboarding flow.
+// Sourced from Figma sheet designs at nodes 2590:180947, 181079, 181915,
+// 182044, 181669.
 
 export const EMPLOYMENT_STATUS = [
   'Employed',
-  'Self-employed',
-  'Business owner',
-  'Retired',
-  'Student',
-  'Homemaker',
   'Unemployed',
+  'Student',
+  'Retired',
 ] as const;
 
 export const ANNUAL_INCOME = [
-  'Less than ₹1 Lakh',
-  '₹1 Lakh - ₹5 Lakhs',
-  '₹5 Lakhs - ₹10 Lakhs',
-  '₹10 Lakhs - ₹25 Lakhs',
-  '₹25 Lakhs - ₹50 Lakhs',
-  '₹50 Lakhs - ₹1 Crore',
-  'Above ₹1 Crore',
+  'Upto 1 Lakh',
+  '5-10 Lakhs',
+  '10-25 Lakhs',
+  '25-50 Lakhs',
+  '50 Lakhs - 1 Crore',
+  '1-5 Crores',
+  'More than 5 Crores',
 ] as const;
 
 export const TOTAL_NET_WORTH = [
-  'Less than ₹10 Lakhs',
-  '₹10 Lakhs - ₹50 Lakhs',
-  '₹50 Lakhs - ₹1 Crore',
-  '₹1 Crore - ₹5 Crore',
-  '₹5 Crore - ₹25 Crore',
-  'Above ₹25 Crore',
+  'Upto 10 Lakhs',
+  '10-25 Lakhs',
+  '25-50 Lakhs',
+  '50 Lakhs - 1 Crore',
+  '1-5 Crores',
+  'More than 5 Crores',
 ] as const;
 
 export const LIQUID_NET_WORTH = [
-  'Less than ₹5 Lakhs',
-  '₹5 Lakhs - ₹10 Lakhs',
-  '₹10 Lakhs - ₹25 Lakhs',
-  '₹25 Lakhs - ₹50 Lakhs',
-  '₹50 Lakhs - ₹1 Crore',
-  'Above ₹1 Crore',
+  'Upto 1 Lakh',
+  '5-10 Lakhs',
+  '10-25 Lakhs',
+  '25-50 Lakhs',
+  '50 Lakhs - 1 Crore',
+  '1-5 Crores',
+  'More than 5 Crores',
 ] as const;
 
 export const SOURCE_OF_FUNDS = [
-  'Employment salary',
-  'Business income',
+  'Employment income',
   'Investments',
   'Inheritance',
-  'Gift',
-  'Loan',
-  'Savings',
-  'Other',
+  'Others',
 ] as const;
 
 export const PERSONAL_DETAILS_DEFAULTS = {
   employment: 'Employed',
-  annualIncome: '₹50 Lakhs - ₹1 Crore',
-  totalNetWorth: '₹1 Crore - ₹5 Crore',
-  liquidNetWorth: '₹10 Lakhs - ₹25 Lakhs',
-  sourceOfFunds: 'Employment salary',
+  annualIncome: '50 Lakhs - 1 Crore',
+  totalNetWorth: '1-5 Crores',
+  liquidNetWorth: '5-10 Lakhs',
+  sourceOfFunds: 'Employment income',
 } as const;

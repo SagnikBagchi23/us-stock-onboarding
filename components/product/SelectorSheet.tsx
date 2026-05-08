@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/constants/theme';
 import { textStyles, spacing } from '@/constants/tokens';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { OptionList } from '@/components/ui/OptionList';
+import { Button } from '@/components/ui/Button';
 
 interface SelectorSheetProps {
   visible: boolean;
@@ -15,8 +16,10 @@ interface SelectorSheetProps {
   onSelect: (option: string) => void;
 }
 
-// Generic bottom-sheet selector: title header + radio-style option list.
-// Sized to fit the longest list while still anchoring to the bottom.
+// Bottom-sheet selector matching Figma 2590:180947 et al.
+// Header: title only (headingBase, 16/8/16 padding).
+// Body: radio rows. Tapping a row stages the selection but doesn't close.
+// Footer: floating "Done" button commits + closes.
 export function SelectorSheet({
   visible,
   onClose,
@@ -28,33 +31,51 @@ export function SelectorSheet({
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
-  // Approximate sheet height: header (76) + (rows × 56, capped by OptionList scroll)
-  // + safe-area bottom. Capped at ~480 so very long lists scroll inside the sheet.
-  const rowsHeight = Math.min(options.length, 6) * 56;
-  const sheetHeight = 76 + rowsHeight + 12 + insets.bottom;
+  // Local staging so a user can change their mind before tapping Done.
+  const [pending, setPending] = useState(selected);
+
+  // Reset staging whenever the sheet (re)opens.
+  useEffect(() => {
+    if (visible) setPending(selected);
+  }, [visible, selected]);
+
+  const handleDone = () => {
+    if (pending !== selected) onSelect(pending);
+    onClose();
+  };
+
+  // Header (~52) + rows × 56 (capped via OptionList scroll at 360) +
+  // CTA region (16 + 48 + 12 + safe-area + ~20 home indicator slot).
+  const rowsHeight = Math.min(options.length, 7) * 56;
+  const sheetHeight = 52 + rowsHeight + 16 + 48 + 12 + insets.bottom + 20;
 
   return (
     <BottomSheet visible={visible} onClose={onClose} sheetHeight={sheetHeight}>
-      <View style={[styles.header]}>
-        <Text style={[textStyles.headingLarge, { color: colors.contentPrimary }]}>{title}</Text>
+      <View style={styles.header}>
+        <Text style={[textStyles.headingBase, { color: colors.contentPrimary }]}>{title}</Text>
       </View>
+
       <OptionList
         options={options}
-        selected={selected}
-        onSelect={(option) => {
-          onSelect(option);
-          onClose();
-        }}
+        selected={pending}
+        onSelect={setPending}
       />
-      <View style={{ height: insets.bottom + spacing.md }} />
+
+      <View style={[styles.footer, { paddingBottom: 16 + insets.bottom }]}>
+        <Button onPress={handleDone}>Done</Button>
+      </View>
     </BottomSheet>
   );
 }
 
 const styles = StyleSheet.create({
   header: {
-    paddingTop: spacing.xxl,
+    paddingTop: spacing.lg,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
+    paddingBottom: spacing.sm,
+  },
+  footer: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
 });
