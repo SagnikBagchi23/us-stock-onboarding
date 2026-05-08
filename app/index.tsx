@@ -25,6 +25,8 @@ import { HoldingsCard } from '@/components/product/HoldingsCard';
 import { PerformanceSection } from '@/components/product/PerformanceSection';
 import { AboutSection } from '@/components/product/AboutSection';
 import { StickyCTA } from '@/components/product/StickyCTA';
+import { BottomSheet } from '@/components/ui/BottomSheet';
+import { ActivateSheetContent, ACTIVATE_SHEET_HEIGHT } from '@/components/product/ActivateSheetContent';
 
 const COLLAPSE_THRESHOLD = 80;
 
@@ -34,6 +36,7 @@ export default function ProductScreen() {
   const insets = useSafeAreaInsets();
 
   const [activeTf, setActiveTf] = useState<Timeframe>('1D');
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   // Series state lifted here so header + holdings card stay in sync with the chart.
   const [series, setSeries] = useState<number[]>(() =>
@@ -132,8 +135,21 @@ export default function ProductScreen() {
       </Animated.ScrollView>
 
       <StickyCTA>
-        <Button onPress={() => router.push('/activate')}>Activate US Stocks</Button>
+        <Button onPress={() => setSheetOpen(true)}>Activate US Stocks</Button>
       </StickyCTA>
+
+      <BottomSheet
+        visible={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        sheetHeight={ACTIVATE_SHEET_HEIGHT}
+      >
+        <ActivateSheetContent
+          onStart={() => {
+            setSheetOpen(false);
+            router.push('/activate');
+          }}
+        />
+      </BottomSheet>
     </View>
   );
 }
