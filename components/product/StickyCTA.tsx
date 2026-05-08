@@ -17,7 +17,7 @@ export function StickyCTA({ children }: StickyCTAProps) {
         {
           backgroundColor: colors.backgroundSurfaceDocked,
           borderTopColor: colors.borderPrimary,
-          paddingBottom: 16 + insets.bottom,
+          paddingBottom: 16 + 12 + insets.bottom,
         },
       ]}
     >

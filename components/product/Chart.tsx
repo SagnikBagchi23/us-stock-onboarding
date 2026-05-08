@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, type LayoutChangeEvent } from 'react-native';
+import { Platform, View, Text, StyleSheet, type LayoutChangeEvent } from 'react-native';
 import { Canvas, Path, Group, Skia, type SkPath } from '@shopify/react-native-skia';
+import * as Haptics from 'expo-haptics';
 import Animated, {
   useSharedValue,
   useDerivedValue,
@@ -69,6 +70,8 @@ export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProp
   const scrubActive = useSharedValue(0);   // 0 or 1
   const scrubIdx = useSharedValue(MORPH_N - 1);
   const [tooltipText, setTooltipText] = useState({ price: fmtUsd(initialPrice), time: '' });
+  // Measured tooltip width drives clamping so the box always hugs its content.
+  const tooltipW = useSharedValue(0);
 
   // ── Derived: interpolated points (UI thread)
   const currentPoints = useDerivedValue<ChartPoint[]>(() => {
@@ -122,12 +125,11 @@ export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProp
   });
 
   const tooltipStyle = useAnimatedStyle(() => {
-    const TT_W = 140;
+    const w = tooltipW.value || 0;
     const pt = currentPoints.value[scrubIdx.value];
-    const half = TT_W / 2;
-    let left = pt.x * scale - half;
+    let left = pt.x * scale - w / 2;
     if (left < 4) left = 4;
-    if (left + TT_W > size.w - 4) left = size.w - TT_W - 4;
+    if (w > 0 && left + w > size.w - 4) left = size.w - w - 4;
     return {
       left,
       opacity: scrubActive.value,
@@ -195,6 +197,12 @@ export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProp
     setTooltipText(scrubTooltip(activeTf, s, seriesIdx));
   }, [activeTf]);
 
+  const triggerHaptic = useCallback((kind: 'start' | 'tick') => {
+    if (Platform.OS === 'web') return;
+    if (kind === 'start') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    else Haptics.selectionAsync();
+  }, []);
+
   const pan = useMemo(() => Gesture.Pan()
     .activateAfterLongPress(0)
     .minDistance(0)
@@ -208,6 +216,7 @@ export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProp
       scrubActive.value = 1;
       scrubIdx.value = idx;
       runOnJS(updateScrubLabel)(idx);
+      runOnJS(triggerHaptic)('start');
     })
     .onUpdate((e) => {
       'worklet';
@@ -219,6 +228,7 @@ export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProp
       if (idx !== scrubIdx.value) {
         scrubIdx.value = idx;
         runOnJS(updateScrubLabel)(idx);
+        runOnJS(triggerHaptic)('tick');
       }
     })
     .onFinalize(() => {
@@ -226,7 +236,7 @@ export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProp
       scrubActive.value = 0;
       scrubIdx.value = MORPH_N - 1;
     }),
-  [activeTf, size.w, updateScrubLabel, scrubActive, scrubIdx]);
+  [activeTf, size.w, updateScrubLabel, triggerHaptic, scrubActive, scrubIdx]);
 
   return (
     <View style={[styles.chart, { height: CHART_HEIGHT }]} onLayout={onLayout}>
@@ -252,9 +262,12 @@ export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProp
             style={[styles.vline, { borderLeftColor: colors.chartGrid }, verticalLineStyle]}
           />
 
-          {/* Tooltip */}
+          {/* Tooltip — width hugs content, measured via onLayout */}
           <Animated.View
             pointerEvents="none"
+            onLayout={(e) => {
+              tooltipW.value = e.nativeEvent.layout.width;
+            }}
             style={[
               styles.tooltip,
               {
@@ -325,7 +338,7 @@ const styles = StyleSheet.create({
   tooltip: {
     position: 'absolute',
     top: 8,
-    width: 140,
+    alignSelf: 'flex-start',
     paddingVertical: 6,
     paddingHorizontal: 8,
     borderRadius: 8,
