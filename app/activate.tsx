@@ -90,7 +90,7 @@ export default function ActivateScreen() {
         />
       </ScrollView>
 
-      <StickyCTA>
+      <StickyCTA floating>
         <Button onPress={() => { /* next step out of scope */ }}>Continue</Button>
       </StickyCTA>
 
