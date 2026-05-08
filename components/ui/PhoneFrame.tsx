@@ -20,7 +20,10 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
   return (
     <View style={styles.stage}>
       <View style={styles.phone}>
-        <View style={styles.screen}>{children}</View>
+        <View style={styles.screen}>
+          {children}
+          <View style={styles.homeIndicator} pointerEvents="none" />
+        </View>
         <View style={styles.island} pointerEvents="none" />
       </View>
     </View>
@@ -68,5 +71,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     borderRadius: ISLAND_H / 2,
     zIndex: 50,
+  },
+  homeIndicator: {
+    position: 'absolute',
+    bottom: 8,
+    left: '50%',
+    width: 134,
+    height: 5,
+    marginLeft: -67,
+    borderRadius: 3,
+    backgroundColor: '#F2F5F7',
+    opacity: 0.9,
   },
 });
