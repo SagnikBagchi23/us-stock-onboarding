@@ -45,7 +45,7 @@ export function SelectorSheet({
   };
 
   // Header (~52) + rows × 56 + CTA region
-  // (16 + 48 + 12 + safe-area + ~20 home indicator slot).
+  // (16 top + 48 button + 12 + safe-area + ~20 home indicator slot).
   const rowsHeight = options.length * 56;
   const sheetHeight = 52 + rowsHeight + 16 + 48 + 12 + insets.bottom + 20;
 
@@ -61,7 +61,7 @@ export function SelectorSheet({
         onSelect={setPending}
       />
 
-      <View style={[styles.footer, { paddingBottom: 16 + insets.bottom }]}>
+      <View style={[styles.footer, { paddingBottom: 16 + 12 + insets.bottom }]}>
         <Button onPress={handleDone}>Done</Button>
       </View>
     </BottomSheet>
