@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Pressable, View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/constants/theme';
 import { textStyles, spacing } from '@/constants/tokens';
 import { Radio } from './Radio';
@@ -17,11 +17,7 @@ export function OptionList({ options, selected, onSelect }: OptionListProps) {
   const { colors } = useTheme();
 
   return (
-    <ScrollView
-      style={{ maxHeight: 360 }}
-      showsVerticalScrollIndicator={false}
-      bounces={false}
-    >
+    <View>
       {options.map((option, idx) => {
         const isSelected = option === selected;
         const isLast = idx === options.length - 1;
@@ -53,7 +49,7 @@ export function OptionList({ options, selected, onSelect }: OptionListProps) {
           </Pressable>
         );
       })}
-    </ScrollView>
+    </View>
   );
 }
 

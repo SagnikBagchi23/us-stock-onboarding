@@ -44,9 +44,9 @@ export function SelectorSheet({
     onClose();
   };
 
-  // Header (~52) + rows × 56 (capped via OptionList scroll at 360) +
-  // CTA region (16 + 48 + 12 + safe-area + ~20 home indicator slot).
-  const rowsHeight = Math.min(options.length, 7) * 56;
+  // Header (~52) + rows × 56 + CTA region
+  // (16 + 48 + 12 + safe-area + ~20 home indicator slot).
+  const rowsHeight = options.length * 56;
   const sheetHeight = 52 + rowsHeight + 16 + 48 + 12 + insets.bottom + 20;
 
   return (
