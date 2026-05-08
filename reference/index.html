@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>US Stocks Onboarding — Prototype</title>
+
+<!-- 1. Icon stylesheet -->
+<link rel="stylesheet" href="https://mint-design-system.vercel.app/typography/hugeicons-min.css">
+
+<!-- 2. Fonts + tokens -->
+<style>
+  @font-face { font-family:'Sohne';     src:url('https://mint-design-system.vercel.app/typography/Sohne-Kraftig.otf') format('opentype'); font-weight:500; font-display:swap; }
+  @font-face { font-family:'GrowwSans'; src:url('https://mint-design-system.vercel.app/typography/GrowwSans-Regular.otf') format('opentype'); font-weight:400; font-display:swap; }
+  @font-face { font-family:'GrowwSans'; src:url('https://mint-design-system.vercel.app/typography/GrowwSans-Medium.otf') format('opentype');  font-weight:500; font-display:swap; }
+  @font-face { font-family:'HugeiconsStroke';      src:url('https://mint-design-system.vercel.app/typography/hugeicons-stroke-standard.woff2') format('woff2'),
+                                                       url('https://mint-design-system.vercel.app/typography/hugeicons-stroke-standard.otf')   format('opentype'); font-display:swap; }
+  @font-face { font-family:'HugeiconsStrokeSolid'; src:url('https://mint-design-system.vercel.app/typography/hugeicons-solid-standard.woff2')  format('woff2'),
+                                                       url('https://mint-design-system.vercel.app/typography/hugeicons-solid-standard.otf')    format('opentype'); font-display:swap; }
+
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'GrowwSans', -apple-system, sans-serif;
+    font-weight:400;
+    color:var(--contentPrimary);
+    background:#1a1a1a;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+  }
+
+  /* Easing tokens (Emil) */
+  :root {
+    --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  /* Type tokens */
+  .body-small        { font-family:'GrowwSans', sans-serif; font-weight:400; font-size:12px; line-height:18px; }
+  .body-small-heavy  { font-family:'GrowwSans', sans-serif; font-weight:500; font-size:12px; line-height:18px; }
+  .body-base         { font-family:'GrowwSans', sans-serif; font-weight:400; font-size:14px; line-height:20px; }
+  .body-base-heavy   { font-family:'GrowwSans', sans-serif; font-weight:500; font-size:14px; line-height:20px; }
+  .body-large        { font-family:'GrowwSans', sans-serif; font-weight:400; font-size:16px; line-height:24px; }
+  .body-large-heavy  { font-family:'GrowwSans', sans-serif; font-weight:500; font-size:16px; line-height:24px; }
+  .body-xsmall-heavy { font-family:'GrowwSans', sans-serif; font-weight:500; font-size:10px; line-height:12px; }
+  .heading-eyebrow   { font-family:'Sohne',     sans-serif; font-weight:500; font-size:10px; line-height:12px; letter-spacing:0.2em; text-transform:uppercase; }
+  .heading-xsmall    { font-family:'Sohne',     sans-serif; font-weight:500; font-size:14px; line-height:20px; }
+  .heading-small     { font-family:'Sohne',     sans-serif; font-weight:500; font-size:16px; line-height:24px; }
+  .heading-base      { font-family:'Sohne',     sans-serif; font-weight:500; font-size:18px; line-height:28px; }
+  .heading-large     { font-family:'Sohne',     sans-serif; font-weight:500; font-size:20px; line-height:32px; }
+  .display-small     { font-family:'Sohne',     sans-serif; font-weight:500; font-size:24px; line-height:32px; }
+  .display-base      { font-family:'Sohne',     sans-serif; font-weight:500; font-size:28px; line-height:36px; }
+
+  /* Icon wrapper */
+  .mds-iconview { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; color:inherit; }
+  .mds-iconview .hgi { line-height:1; color:inherit; }
+  .mds-iconview--xsmall { width:12px; height:12px; font-size:12px; }
+  .mds-iconview--small  { width:16px; height:16px; font-size:16px; }
+  .mds-iconview--medium { width:20px; height:20px; font-size:20px; }
+  .mds-iconview--large  { width:24px; height:24px; font-size:24px; }
+  .mds-iconview--xlarge { width:28px; height:28px; font-size:28px; }
+
+  /* Dark-mode tokens (Mint DS — Groww Invest dark) */
+  :root {
+    --backgroundPrimary:           #060809;
+    --backgroundSurfaceZ1:         #151819;
+    --backgroundSurfaceZ2:         #1F2324;
+    --backgroundSurfaceDocked:     #151819;
+    --backgroundSecondary:         #151819;
+    --backgroundTertiary:          #252525;
+    --backgroundAccent:            #04B488;
+    --backgroundNegative:          #ED5533;
+    --backgroundPositive:          #04B488;
+    --backgroundWarning:           #E7A71E;
+    --backgroundAccentSubtle:      #0E2A22;
+    --backgroundNegativeSubtle:    #2C1612;
+    --backgroundPositiveSubtle:    #0E2A22;
+    --backgroundWarningSubtle:     #2C2310;
+    --backgroundDisabled:          #1F2324;
+    --backgroundTransparent:       transparent;
+    --borderPrimary:               #252A2C;
+    --borderAccent:                #04B488;
+    --borderNegative:              #ED5533;
+    --borderDisabled:              #252A2C;
+    --borderNeutral:               #F2F5F7;
+    --contentPrimary:              #F2F5F7;
+    --contentSecondary:            #989EA0;
+    --contentTertiary:             #696E70;
+    --contentDisabled:             #4A4F51;
+    --contentAccent:               #04B488;
+    --contentPositive:             #0ABB92;
+    --contentNegative:             #ED5533;
+    --contentWarning:              #E7A71E;
+    --contentOnColour:             #FFFFFF;
+    --contentOnAccentSubtle:       #0ABB92;
+    --contentOnPositiveSubtle:     #0ABB92;
+    --contentOnNegativeSubtle:     #ED5533;
+    --contentOnWarningSubtle:      #E7A71E;
+  }
+
+  /* ── Phone frame ── */
+  .stage { display:flex; flex-direction:column; align-items:center; gap:24px; }
+  .phone {
+    width:390px; height:844px;
+    border-radius:54px;
+    background:#0a0a0a;
+    padding:14px;
+    box-shadow: 0 0 0 2px #1c1c1e, 0 30px 60px -20px rgba(0,0,0,.5), 0 18px 36px -18px rgba(0,0,0,.35);
+    position:relative;
+  }
+  .phone__screen {
+    position:relative;
+    width:100%; height:100%;
+    border-radius:42px;
+    background:var(--backgroundPrimary);
+    overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .phone__notch {
+    position:absolute;
+    top:10px; left:50%;
+    transform:translateX(-50%);
+    width:120px; height:32px;
+    background:#0a0a0a;
+    border-radius:18px;
+    z-index:50;
+    pointer-events:none;
+  }
+
+  /* iOS-style status bar */
+  .status-bar {
+    height:54px; flex-shrink:0;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    padding:0 28px 8px;
+    font-family:'Sohne', sans-serif; font-weight:500; font-size:15px;
+    color:var(--contentPrimary);
+    background:var(--backgroundPrimary);
+    transition: background-color 200ms var(--ease-out);
+  }
+  .phone__screen.is-scrolled .status-bar {
+    background:var(--backgroundSurfaceZ1);
+  }
+  .status-bar__right { display:flex; gap:6px; align-items:center; opacity:.8; }
+
+  /* Screens router */
+  .screens { flex:1; position:relative; overflow:hidden; }
+  .screen {
+    position:absolute; inset:0;
+    display:none;
+    flex-direction:column;
+    background:var(--backgroundPrimary);
+  }
+  .screen.is-active { display:flex; }
+  .screen__body {
+    flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+
+  /* App bar */
+  .appbar {
+    height:56px; flex-shrink:0;
+    display:flex; align-items:center;
+    padding:8px;
+    background:var(--backgroundPrimary);
+  }
+  .appbar__icon-btn {
+    width:40px; height:40px; border-radius:20px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--contentPrimary);
+    background:transparent; border:none;
+  }
+  .appbar__icon-btn:active { background:var(--backgroundTertiary); }
+  .appbar__title { color:var(--contentPrimary); flex:1; padding:0 8px; }
+  .appbar__spacer { flex:1; }
+
+  /* Buttons */
+  .btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    height:48px; padding:0 20px;
+    border-radius:8px;
+    font-family:'GrowwSans', sans-serif; font-weight:500; font-size:14px; line-height:20px;
+    border:none; cursor:pointer; width:100%;
+    transition:opacity .15s ease;
+  }
+  .btn { transition: transform 160ms var(--ease-out), opacity 160ms var(--ease-out); }
+  .btn:active { transform:scale(0.97); opacity:.92; }
+  .btn--primary   { background:var(--backgroundAccent);   color:var(--contentOnColour); }
+  .btn--secondary { background:var(--backgroundTertiary); color:var(--contentPrimary); }
+  .btn--ghost     { background:transparent; color:var(--contentAccent); }
+
+  /* Tertiary inline button */
+  .btn-tertiary {
+    display:inline-flex; align-items:center; gap:4px;
+    color:var(--contentAccent);
+    background:transparent; border:none;
+    font-family:'GrowwSans', sans-serif; font-weight:500; font-size:12px; line-height:18px;
+    cursor:pointer; padding:0;
+  }
+
+  /* Sticky CTA bar */
+  .cta-bar {
+    flex-shrink:0;
+    background:var(--backgroundSurfaceDocked);
+    border-top:1px solid var(--borderPrimary);
+    padding:16px 16px calc(16px + env(safe-area-inset-bottom, 0));
+  }
+
+  /* Outside controls */
+  .controls {
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:center;
+  }
+  .controls__btn {
+    height:36px; padding:0 14px;
+    border-radius:8px;
+    background:#2a2a2a; color:#f2f5f7;
+    border:1px solid #3a3a3a;
+    font-family:'GrowwSans', sans-serif; font-weight:500; font-size:13px;
+    cursor:pointer;
+  }
+  .controls__btn:disabled { color:#666; cursor:not-allowed; }
+  .controls__label {
+    font-family:'GrowwSans', sans-serif; font-size:12px; color:#aaa; padding:0 4px;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SCREEN: product (Alphabet Class A — GOOG)
+     ═══════════════════════════════════════════════════════ */
+
+  .product__appbar {
+    display:flex; align-items:center;
+    padding:8px;
+    background:var(--backgroundPrimary);
+    border-bottom:1px solid transparent;
+    transition: background-color 200ms var(--ease-out), border-color 200ms var(--ease-out);
+  }
+  .product__appbar.is-scrolled {
+    background:var(--backgroundSurfaceZ1);
+    border-bottom-color:var(--borderPrimary);
+  }
+  .appbar-title-stack {
+    flex:1; min-width:0;
+    display:flex; flex-direction:column; align-items:flex-start;
+    overflow:hidden;
+    padding:0 4px;
+    /* Mask container — title block slides in from below */
+  }
+  .appbar-title-stack__inner {
+    display:flex; flex-direction:column; align-items:flex-start;
+    transform: translateY(100%);
+    opacity: 0;
+    transition:
+      transform 280ms var(--ease-out),
+      opacity   200ms var(--ease-out);
+  }
+  .product__appbar.is-scrolled .appbar-title-stack__inner {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .appbar-title-stack__name {
+    color:var(--contentPrimary);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    max-width:100%;
+  }
+  .appbar-title-stack__sub {
+    display:flex; gap:4px; align-items:baseline;
+    white-space:nowrap;
+  }
+  .appbar-title-stack__price { color:var(--contentPrimary); }
+
+  .product__info { padding:16px; display:flex; flex-direction:column; gap:12px; }
+  .product__logo {
+    width:32px; height:32px; border-radius:6px;
+    background:var(--backgroundSurfaceZ1);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .product__name-block { display:flex; flex-direction:column; gap:0; }
+  .product__ticker { color:var(--contentSecondary); }
+  .product__name   { color:var(--contentPrimary); }
+  .product__price-row { display:flex; align-items:flex-end; justify-content:space-between; }
+  .product__price-block { display:flex; flex-direction:column; gap:2px; }
+  .product__price  { color:var(--contentPrimary); }
+  .product__change { display:flex; gap:4px; align-items:center; }
+  .product__change-pos { color:var(--contentPositive); }
+  .product__change-neg { color:var(--contentNegative); }
+  .product__change-period { color:var(--contentSecondary); }
+
+  /* Chart area */
+  .chart {
+    height:340px; position:relative; overflow:hidden;
+    margin: 0;
+  }
+  .chart__svg { position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .chart__hline {
+    position:absolute; left:0; right:0;
+    border-top:1px dashed #3a3f42;
+    pointer-events:none;
+  }
+  .chart__vline {
+    position:absolute; top:0; bottom:0;
+    border-left:1px dashed #3a3f42;
+    pointer-events:none;
+    opacity:0;
+  }
+  .chart__tooltip {
+    position:absolute;
+    background:var(--backgroundSurfaceZ1);
+    border:1px solid var(--borderPrimary);
+    border-radius:8px;
+    padding:6px 8px;
+    display:flex; flex-direction:column; gap:4px;
+    color:var(--contentPrimary);
+    pointer-events:none;
+    opacity:0;
+  }
+  .chart.is-scrubbing .chart__vline,
+  .chart.is-scrubbing .chart__tooltip { opacity:1; }
+  .chart__tooltip-time { color:var(--contentTertiary); }
+  .chart__dot {
+    position:absolute;
+    width:12px; height:12px;
+    border-radius:50%;
+    background:var(--contentPositive);
+    box-shadow:0 0 0 4px rgba(10,187,146,.18);
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+    z-index:5;
+  }
+  .chart__expand {
+    position:absolute;
+    right:16px; bottom:16px;
+    width:40px; height:40px;
+    border-radius:99px;
+    border:1px solid var(--borderPrimary);
+    background:var(--backgroundPrimary);
+    color:var(--contentPrimary);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+
+  /* Time-frame pills */
+  .pills {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 16px;
+  }
+  .pill {
+    height:24px; padding:0 8px;
+    border-radius:99px;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-family:'GrowwSans', sans-serif; font-weight:500; font-size:12px; line-height:18px;
+    color:var(--contentSecondary);
+    background:transparent; border:1px solid transparent;
+    cursor:pointer; user-select:none;
+    transition:
+      background-color 180ms var(--ease-out),
+      border-color     180ms var(--ease-out),
+      color            180ms var(--ease-out),
+      transform        160ms var(--ease-out);
+  }
+  .pill:active { transform:scale(0.96); }
+  .pill.is-active {
+    background:var(--backgroundTertiary);
+    border-color:var(--contentPrimary);
+    color:var(--contentPrimary);
+  }
+  .pill--icon {
+    width:24px; height:24px; padding:0;
+    color:var(--contentPositive);
+  }
+
+  /* Holdings card */
+  .holdings { padding:12px 16px; }
+  .holdings__card {
+    background:var(--backgroundSurfaceZ1);
+    border:1px solid var(--borderPrimary);
+    border-radius:16px;
+    padding:12px 16px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .holdings__left  { display:flex; flex-direction:column; gap:2px; }
+  .holdings__right { display:flex; flex-direction:column; gap:2px; align-items:flex-end; text-align:right; }
+  .holdings__shares { display:flex; gap:2px; align-items:center; color:var(--contentPrimary); }
+  .holdings__limit  { color:var(--contentSecondary); }
+  .holdings__value  { color:var(--contentPrimary); }
+  .holdings__change-pos { color:var(--contentPositive); }
+
+  /* Section header */
+  .section-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:24px 16px 8px;
+  }
+  .section-header__left {
+    display:flex; align-items:center; gap:4px;
+  }
+  .section-header__title { color:var(--contentPrimary); }
+  .section-header__icon { color:var(--contentSecondary); }
+
+  /* Performance */
+  .perf {
+    border-bottom:1px solid var(--borderPrimary);
+    padding-bottom:16px;
+  }
+  .perf__rows {
+    display:flex; flex-direction:column; gap:24px;
+    padding:8px 16px;
+  }
+  .perf__row { display:flex; flex-direction:column; gap:8px; }
+  .perf__head {
+    display:flex; justify-content:space-between; align-items:flex-start;
+  }
+  .perf__col-end { display:flex; flex-direction:column; align-items:flex-end; }
+  .perf__label   { color:var(--contentSecondary); }
+  .perf__value   { color:var(--contentPrimary); }
+  .perf__bar {
+    position:relative;
+    height:22px;
+    display:flex; align-items:center;
+  }
+  .perf__bar-track {
+    position:absolute; left:0; right:0;
+    height:6px;
+    border-radius:99px;
+    background:var(--contentAccent);
+  }
+  .perf__bar-marker {
+    position:absolute;
+    width:2px; height:18px;
+    background:var(--contentPrimary);
+    border-radius:2px;
+    transform:translateX(-50%);
+  }
+  .perf__triplet {
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding:8px 16px 0;
+    gap:12px;
+  }
+  .perf__cell {
+    flex:1; display:flex; flex-direction:column; gap:2px;
+  }
+  .perf__cell--center { text-align:left; }
+  .perf__cell--right  { text-align:right; align-items:flex-end; }
+
+  /* About */
+  .about__body { padding:16px; display:flex; flex-direction:column; gap:16px; }
+  .about__rows { display:flex; flex-direction:column; gap:12px; }
+  .about__row  { display:flex; align-items:center; justify-content:space-between; }
+  .about__label { color:var(--contentSecondary); }
+  .about__value { color:var(--contentPrimary); text-align:right; }
+  .about__copy  { color:var(--contentSecondary); }
+  .about__more  { display:flex; align-items:center; gap:4px; }
+
+  /* Chart path + indicator: morph is driven from JS for perfect sync */
+  .chart__path-line { /* no CSS transition — JS handles the morph */ }
+  .chart__hline,
+  .chart__vline,
+  .chart__tooltip,
+  .chart__dot {
+    transition: opacity 200ms var(--ease-out);
+  }
+
+  /* Live price tick */
+  .product__price,
+  .product__change-pos,
+  .product__change-neg {
+    transition: color 300ms var(--ease-out);
+  }
+  .tick-up   { color:var(--contentPositive) !important; }
+  .tick-down { color:var(--contentNegative) !important; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chart__path-line,
+    .chart__path-area,
+    .chart__hline,
+    .chart__vline,
+    .chart__tooltip,
+    .chart__dot { transition: opacity 200ms ease; }
+  }
+
+  /* Placeholder screen */
+  .placeholder { padding:24px; display:flex; flex-direction:column; gap:12px; }
+  .placeholder__body { color:var(--contentSecondary); }
+  .placeholder__hint { color:var(--contentTertiary); }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- Phone frame -->
+  <div class="phone">
+    <div class="phone__notch"></div>
+    <div class="phone__screen">
+
+      <!-- Status bar -->
+      <div class="status-bar">
+        <span>9:41</span>
+        <div class="status-bar__right">
+          <span class="mds-iconview mds-iconview--xsmall"><i class="hgi-stroke hgi-signal"></i></span>
+          <span class="mds-iconview mds-iconview--xsmall"><i class="hgi-stroke hgi-wifi-01"></i></span>
+          <span class="mds-iconview mds-iconview--small"><i class="hgi-stroke hgi-battery-full"></i></span>
+        </div>
+      </div>
+
+      <!-- Screens -->
+      <div class="screens">
+
+        <!-- ═══ SCREEN: product (Alphabet / GOOG) ═══ -->
+        <section class="screen is-active" data-screen="product">
+
+          <div class="product__appbar" id="product-appbar">
+            <button class="appbar__icon-btn" aria-label="Back">
+              <span class="mds-iconview mds-iconview--large"><i class="hgi-stroke hgi-arrow-left-01"></i></span>
+            </button>
+            <div class="appbar-title-stack">
+              <div class="appbar-title-stack__inner">
+                <span class="heading-xsmall appbar-title-stack__name">Alphabet Class A (Google)</span>
+                <span class="body-small appbar-title-stack__sub">
+                  <span class="body-small-heavy appbar-title-stack__price" id="appbar-price">$390.85</span>
+                  <span class="body-small-heavy" id="appbar-change" style="color:var(--contentPositive);">+22.96 (10.16%)</span>
+                </span>
+              </div>
+            </div>
+            <button class="appbar__icon-btn" aria-label="Search">
+              <span class="mds-iconview mds-iconview--large"><i class="hgi-stroke hgi-search-01"></i></span>
+            </button>
+          </div>
+
+          <div class="screen__body">
+
+            <!-- Stock info -->
+            <div class="product__info">
+              <div class="product__logo">
+                <!-- Google G mark -->
+                <svg viewBox="0 0 48 48" width="22" height="22" aria-hidden="true">
+                  <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.972 32.91 29.418 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.954 4 4 12.954 4 24s8.954 20 20 20 20-8.954 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                  <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                  <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.385 0-9.954-3.067-11.297-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                  <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571.001-.001.002-.001.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                </svg>
+              </div>
+              <div class="product__name-block">
+                <p class="body-small product__ticker">GOOG</p>
+                <p class="heading-small product__name">Alphabet Class A (Google)</p>
+              </div>
+              <div class="product__price-row">
+                <div class="product__price-block">
+                  <p class="display-small product__price" id="price-value">$390.85</p>
+                  <div class="product__change">
+                    <span class="body-small-heavy product__change-pos" id="price-change">+22.96 (10.16%)</span>
+                    <span class="body-small product__change-period" id="price-period">1D</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart area -->
+            <div class="chart" id="chart">
+              <svg class="chart__svg" viewBox="0 0 360 340" preserveAspectRatio="none" aria-hidden="true">
+                <path id="chart-line" class="chart__path-line" d=""
+                      fill="none" stroke="#0ABB92" stroke-width="1.5"
+                      stroke-linejoin="round" stroke-linecap="round"/>
+              </svg>
+
+              <!-- Horizontal LTP line -->
+              <div class="chart__hline" id="chart-hline" style="top:55%;"></div>
+              <!-- Vertical tooltip line -->
+              <div class="chart__vline" id="chart-vline" style="left:78%;"></div>
+
+              <!-- Tooltip -->
+              <div class="chart__tooltip" id="chart-tooltip"
+                   style="left:78%; top:6px; transform:translateX(-50%); width:96px;">
+                <span class="body-small" id="chart-tooltip-price">$390.85</span>
+                <span class="body-xsmall-heavy chart__tooltip-time" id="chart-tooltip-time">9:41AM</span>
+              </div>
+
+              <!-- Dot -->
+              <div class="chart__dot" id="chart-dot" style="left:78%; top:30%;"></div>
+
+              <!-- Expand -->
+              <button class="chart__expand" aria-label="Expand chart">
+                <span class="mds-iconview mds-iconview--medium"><i class="hgi-stroke hgi-arrow-expand-01"></i></span>
+              </button>
+            </div>
+
+            <!-- Time-frame pills -->
+            <div class="pills" id="pills" role="tablist" aria-label="Time frame">
+              <button class="pill is-active" data-pill data-tf="1D">1D</button>
+              <button class="pill" data-pill data-tf="1W">1W</button>
+              <button class="pill" data-pill data-tf="1M">1M</button>
+              <button class="pill" data-pill data-tf="3M">3M</button>
+              <button class="pill" data-pill data-tf="6M">6M</button>
+              <button class="pill" data-pill data-tf="1Y">1Y</button>
+              <button class="pill" data-pill data-tf="3Y">3Y</button>
+              <button class="pill" data-pill data-tf="5Y">5Y</button>
+              <button class="pill" data-pill data-tf="10Y">10Y</button>
+            </div>
+
+            <!-- Holdings card -->
+            <div class="holdings">
+              <div class="holdings__card">
+                <div class="holdings__left">
+                  <div class="holdings__shares">
+                    <span class="body-base-heavy">10 shares</span>
+                    <span class="mds-iconview mds-iconview--small" style="color:var(--contentSecondary);">
+                      <i class="hgi-stroke hgi-arrow-right-01"></i>
+                    </span>
+                  </div>
+                  <span class="body-small holdings__limit">Limit at price $300.00</span>
+                </div>
+                <div class="holdings__right">
+                  <span class="body-base-heavy holdings__value" id="holdings-value">$3,908.50</span>
+                  <span class="body-small-heavy holdings__change-pos" id="holdings-change">+12.24 (1.23%)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Performance section -->
+            <div class="perf">
+              <div class="section-header">
+                <div class="section-header__left">
+                  <span class="heading-base section-header__title">Performance</span>
+                  <span class="mds-iconview mds-iconview--medium section-header__icon">
+                    <i class="hgi-stroke hgi-information-circle"></i>
+                  </span>
+                </div>
+                <span class="mds-iconview mds-iconview--medium section-header__icon">
+                  <i class="hgi-stroke hgi-arrow-up-01"></i>
+                </span>
+              </div>
+
+              <div class="perf__rows">
+                <div class="perf__row">
+                  <div class="perf__head">
+                    <div>
+                      <p class="body-small perf__label">Today's low</p>
+                      <p class="body-base-heavy perf__value">$386.42</p>
+                    </div>
+                    <div class="perf__col-end">
+                      <p class="body-small perf__label">Today's high</p>
+                      <p class="body-base-heavy perf__value">$393.18</p>
+                    </div>
+                  </div>
+                  <div class="perf__bar">
+                    <div class="perf__bar-track"></div>
+                    <div class="perf__bar-marker" style="left:65%;"></div>
+                  </div>
+                </div>
+
+                <div class="perf__row">
+                  <div class="perf__head">
+                    <div>
+                      <p class="body-small perf__label">52 week low</p>
+                      <p class="body-base-heavy perf__value">$147.43</p>
+                    </div>
+                    <div class="perf__col-end">
+                      <p class="body-small perf__label">52 week high</p>
+                      <p class="body-base-heavy perf__value">$397.50</p>
+                    </div>
+                  </div>
+                  <div class="perf__bar">
+                    <div class="perf__bar-track"></div>
+                    <div class="perf__bar-marker" style="left:97%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="perf__triplet">
+                <div class="perf__cell">
+                  <p class="body-small perf__label">Open price</p>
+                  <p class="body-base-heavy perf__value">$388.20</p>
+                </div>
+                <div class="perf__cell">
+                  <p class="body-small perf__label">Previous close</p>
+                  <p class="body-base-heavy perf__value">$387.62</p>
+                </div>
+                <div class="perf__cell">
+                  <p class="body-small perf__label">Today's volume</p>
+                  <p class="body-base-heavy perf__value">28.4M</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- About section -->
+            <div class="about">
+              <div class="section-header">
+                <span class="heading-base section-header__title">About</span>
+                <span class="mds-iconview mds-iconview--medium section-header__icon">
+                  <i class="hgi-stroke hgi-arrow-up-01"></i>
+                </span>
+              </div>
+
+              <div class="about__body">
+                <div class="about__rows">
+                  <div class="about__row">
+                    <span class="body-base about__label">CEO</span>
+                    <span class="body-base-heavy about__value">Sundar Pichai</span>
+                  </div>
+                  <div class="about__row">
+                    <span class="body-base about__label">Founded in</span>
+                    <span class="body-base-heavy about__value">1998</span>
+                  </div>
+                  <div class="about__row">
+                    <span class="body-base about__label">Symbol</span>
+                    <span class="body-base-heavy about__value">GOOG</span>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="body-base about__copy">Alphabet is the parent company of Google, headquartered in Mountain View, California. Its businesses span Search, YouTube, Android, Google Cloud, and AI research through DeepMind.</p>
+                  <button class="btn-tertiary about__more" style="margin-top:8px;">Read more</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom spacer so content isn't hidden behind sticky CTA -->
+            <div style="height:8px;"></div>
+          </div>
+
+          <!-- Sticky CTA -->
+          <div class="cta-bar">
+            <button class="btn btn--primary" data-go="placeholder-next">Activate US Stocks</button>
+          </div>
+        </section>
+
+        <!-- ═══ SCREEN: placeholder-next ═══ -->
+        <section class="screen" data-screen="placeholder-next">
+          <div class="appbar">
+            <button class="appbar__icon-btn" data-back aria-label="Back">
+              <span class="mds-iconview mds-iconview--large"><i class="hgi-stroke hgi-arrow-left-01"></i></span>
+            </button>
+            <span class="heading-base appbar__title">Activate US Stocks</span>
+          </div>
+          <div class="screen__body placeholder">
+            <p class="body-base placeholder__body">Next screen placeholder. Tell me what comes after &ldquo;Activate US Stocks&rdquo; and I'll build it.</p>
+            <p class="body-small placeholder__hint">Each new screen is a <code>&lt;section class="screen" data-screen="…"&gt;</code> inside the <code>.screens</code> container. Use <code>data-go="screenId"</code> on any element to navigate.</p>
+          </div>
+          <div class="cta-bar">
+            <button class="btn btn--secondary" data-back>Go back</button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Outside controls -->
+  <div class="controls">
+    <button class="controls__btn" id="btn-prev">← Prev</button>
+    <span class="controls__label" id="screen-label">product</span>
+    <button class="controls__btn" id="btn-next">Next →</button>
+    <button class="controls__btn" id="btn-restart">Restart</button>
+  </div>
+</div>
+
+<script>
+  /* ────────────────────────────────────────────────
+     Live price + chart engine
+     ──────────────────────────────────────────────── */
+  (function () {
+    const W = 360, H = 340, PAD_X = 16, PAD_TOP = 40, PAD_BOTTOM = 40;
+    const CHART_W = W - PAD_X * 2;
+    const CHART_H = H - PAD_TOP - PAD_BOTTOM;
+    const MORPH_N = 96;            // resampled point count for fluid morphing
+    const MORPH_DURATION = 240;    // ms — snappy, well under 300ms
+    const EASE_MORPH = (t) => {    // cubic-bezier(0.23, 1, 0.32, 1) — strong ease-out
+      return 1 - Math.pow(1 - t, 3);
+    };
+
+    // Per-timeframe synthetic series — number of points + volatility profile.
+    // widthFrac is how much of the chart width the series spans (1D ≈ 60% — market not yet closed).
+    const TIMEFRAMES = {
+      '1D':  { points: 78,  vol: 0.0030, drift:  0.00012, widthFrac: 0.60 },
+      '1W':  { points: 60,  vol: 0.0080, drift:  0.00020, widthFrac: 1.00 },
+      '1M':  { points: 80,  vol: 0.0140, drift:  0.00060, widthFrac: 1.00 },
+      '3M':  { points: 90,  vol: 0.0220, drift:  0.00080, widthFrac: 1.00 },
+      '6M':  { points: 100, vol: 0.0260, drift:  0.00060, widthFrac: 1.00 },
+      '1Y':  { points: 120, vol: 0.0320, drift:  0.00050, widthFrac: 1.00 },
+      '3Y':  { points: 140, vol: 0.0420, drift:  0.00080, widthFrac: 1.00 },
+      '5Y':  { points: 160, vol: 0.0500, drift:  0.00100, widthFrac: 1.00 },
+      '10Y': { points: 180, vol: 0.0650, drift:  0.00120, widthFrac: 1.00 },
+    };
+
+    const CURRENT_PRICE_INIT = 390.85;
+    const SHARES_HELD = 10;
+    const AVG_BUY = 300.00;
+
+    // Deterministic PRNG so each timeframe looks consistent across renders
+    function mulberry32(seed) {
+      return function () {
+        let t = seed += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    // Generate a price series ending at endPrice, working backwards.
+    function generateSeries(tf, endPrice, seed) {
+      const cfg = TIMEFRAMES[tf];
+      const n   = cfg.points;
+      const rnd = mulberry32(seed);
+      const series = new Array(n);
+      series[n - 1] = endPrice;
+      for (let i = n - 2; i >= 0; i--) {
+        // gaussian-ish noise via two uniforms
+        const u = (rnd() + rnd() + rnd() - 1.5) * 2;
+        const step = endPrice * cfg.vol * u / Math.sqrt(n) - endPrice * cfg.drift / n;
+        series[i] = Math.max(1, series[i + 1] - step);
+      }
+      return series;
+    }
+
+    function buildPaths(points) {
+      // points = array of {x, y} already in viewBox coords
+      const n = points.length;
+      let line = '';
+      for (let i = 0; i < n; i++) {
+        line += (i === 0 ? 'M ' : ' L ') + points[i].x.toFixed(2) + ',' + points[i].y.toFixed(2);
+      }
+      return line;
+    }
+
+    // Resample a price series to MORPH_N evenly-spaced points and project to viewBox coords.
+    function projectSeries(s, widthFrac) {
+      const min = Math.min.apply(null, s);
+      const max = Math.max.apply(null, s);
+      const range = Math.max(max - min, 0.0001);
+      const n = s.length;
+      const usableW = CHART_W * widthFrac;
+      const out = new Array(MORPH_N);
+      for (let i = 0; i < MORPH_N; i++) {
+        const tf = i / (MORPH_N - 1);
+        const sf = tf * (n - 1);
+        const i0 = Math.floor(sf);
+        const i1 = Math.min(n - 1, i0 + 1);
+        const frac = sf - i0;
+        const v = s[i0] * (1 - frac) + s[i1] * frac;
+        out[i] = {
+          x: PAD_X + tf * usableW,
+          y: PAD_TOP + (1 - (v - min) / range) * CHART_H,
+        };
+      }
+      return out;
+    }
+
+    // ── DOM refs ──
+    const elPrice    = document.getElementById('price-value');
+    const elChange   = document.getElementById('price-change');
+    const elPeriod   = document.getElementById('price-period');
+    const elLine     = document.getElementById('chart-line');
+    const elHline    = document.getElementById('chart-hline');
+    const elVline    = document.getElementById('chart-vline');
+    const elDot      = document.getElementById('chart-dot');
+    const elTooltip  = document.getElementById('chart-tooltip');
+    const elTipPrice = document.getElementById('chart-tooltip-price');
+    const elTipTime  = document.getElementById('chart-tooltip-time');
+    const elHoldVal  = document.getElementById('holdings-value');
+    const elHoldChg  = document.getElementById('holdings-change');
+    const elAppbar   = document.getElementById('product-appbar');
+    const elAppbarPrice  = document.getElementById('appbar-price');
+    const elAppbarChange = document.getElementById('appbar-change');
+    const pillsRoot  = document.getElementById('pills');
+
+    // ── State ──
+    let currentPrice = CURRENT_PRICE_INIT;
+    let activeTf     = '1D';
+    let series       = generateSeries(activeTf, currentPrice, hashTf(activeTf));
+    let currentPoints = projectSeries(series, TIMEFRAMES[activeTf].widthFrac);
+    let morphRAF = 0;
+
+    function hashTf(tf) {
+      let h = 0;
+      for (let i = 0; i < tf.length; i++) h = (h * 31 + tf.charCodeAt(i)) >>> 0;
+      return h || 1;
+    }
+
+    function fmtUsd(n) {
+      return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function fmtSigned(n) {
+      const sign = n >= 0 ? '+' : '';
+      return sign + n.toFixed(2);
+    }
+
+    function paintFromPoints(points) {
+      const last = points[points.length - 1];
+      elLine.setAttribute('d', buildPaths(points));
+      const lastYPct = (last.y / H) * 100;
+      const lastXPct = (last.x / W) * 100;
+      elHline.style.top = lastYPct + '%';
+      // Skip animating the dot during morph — JS rAF already keeps it locked
+      elDot.style.transition = 'none';
+      elDot.style.top   = lastYPct + '%';
+      elDot.style.left  = lastXPct + '%';
+    }
+
+    function renderChart(s) {
+      currentPoints = projectSeries(s, TIMEFRAMES[activeTf].widthFrac);
+      paintFromPoints(currentPoints);
+    }
+
+    // Interruptible morph from currentPoints → target geometry
+    function morphTo(targetPoints) {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduceMotion) {
+        currentPoints = targetPoints;
+        paintFromPoints(currentPoints);
+        return;
+      }
+      // Snapshot start (handles interruption — picks up wherever we are right now)
+      const fromPoints = currentPoints.map(p => ({ x: p.x, y: p.y }));
+      const toPoints   = targetPoints;
+      const t0 = performance.now();
+
+      if (morphRAF) cancelAnimationFrame(morphRAF);
+
+      function step(now) {
+        const t = Math.min(1, (now - t0) / MORPH_DURATION);
+        const e = EASE_MORPH(t);
+        for (let i = 0; i < MORPH_N; i++) {
+          currentPoints[i].x = fromPoints[i].x + (toPoints[i].x - fromPoints[i].x) * e;
+          currentPoints[i].y = fromPoints[i].y + (toPoints[i].y - fromPoints[i].y) * e;
+        }
+        paintFromPoints(currentPoints);
+        if (t < 1) morphRAF = requestAnimationFrame(step);
+        else morphRAF = 0;
+      }
+      morphRAF = requestAnimationFrame(step);
+    }
+
+    function renderPriceTexts(s, tf) {
+      const start = s[0], end = s[s.length - 1];
+      const diff  = end - start;
+      const pct   = (diff / start) * 100;
+      const positive = diff >= 0;
+
+      elPrice.textContent  = fmtUsd(end);
+      elChange.textContent = fmtSigned(diff) + ' (' + fmtSigned(pct) + '%)';
+      elChange.classList.toggle('product__change-pos',  positive);
+      elChange.classList.toggle('product__change-neg', !positive);
+      elPeriod.textContent = tf;
+
+      // Holdings — gain vs avg buy, shown live on current price
+      const holdValue = end * SHARES_HELD;
+      const holdDiff  = (end - AVG_BUY) * SHARES_HELD;
+      const holdPct   = ((end - AVG_BUY) / AVG_BUY) * 100;
+      elHoldVal.textContent = fmtUsd(holdValue);
+      elHoldChg.textContent = fmtSigned(holdDiff) + ' (' + fmtSigned(holdPct) + '%)';
+      elHoldChg.classList.toggle('product__change-pos',  holdDiff >= 0);
+      elHoldChg.classList.toggle('product__change-neg', holdDiff <  0);
+
+      // Mirror into the appbar (collapsed-state subtitle)
+      elAppbarPrice.textContent  = fmtUsd(end);
+      elAppbarChange.textContent = fmtSigned(diff) + ' (' + fmtSigned(pct) + '%)';
+      elAppbarChange.style.color = positive ? 'var(--contentPositive)' : 'var(--contentNegative)';
+    }
+
+    function tooltipLabel(tf) {
+      const now = new Date();
+      if (tf === '1D')  return now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      if (tf === '1W')  return now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' });
+      if (tf === '1M' || tf === '3M' || tf === '6M')
+                        return now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return now.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    function setTimeframe(tf) {
+      if (!TIMEFRAMES[tf] || tf === activeTf) return;
+      activeTf = tf;
+      series = generateSeries(tf, currentPrice, hashTf(tf));
+      const target = projectSeries(series, TIMEFRAMES[tf].widthFrac);
+      morphTo(target);
+      renderPriceTexts(series, tf);
+    }
+
+    // ── Live ticking ──
+    function tickPrice() {
+      // Don't fight the morph — skip ticks while a transition is in flight
+      if (morphRAF) return;
+      // small random walk — ±0.15% per tick, mean-reverting toward 390
+      const drift = (390.85 - currentPrice) * 0.02;
+      const shock = (Math.random() - 0.5) * currentPrice * 0.0015;
+      const next  = Math.max(1, currentPrice + drift + shock);
+      currentPrice = next;
+
+      // Update last point in series and re-render — chart + price stay in sync
+      series[series.length - 1] = next;
+      renderChart(series);
+      renderPriceTexts(series, activeTf);
+    }
+
+    // ── Pill click handler (replaces the simpler one in the page-level listener) ──
+    pillsRoot.addEventListener('click', (e) => {
+      const pill = e.target.closest('[data-tf]');
+      if (!pill) return;
+      pillsRoot.querySelectorAll('.pill').forEach(p => p.classList.remove('is-active'));
+      pill.classList.add('is-active');
+      setTimeframe(pill.dataset.tf);
+    });
+
+    // ── Scrub interaction ──
+    const elChart = document.getElementById('chart');
+    let scrubActive = false;
+
+    function pointToValue(clientX) {
+      const rect = elChart.getBoundingClientRect();
+      const widthFrac = TIMEFRAMES[activeTf].widthFrac;
+      const scale = rect.width / W;
+      const usableW = CHART_W * widthFrac * scale;
+      const xPx = clientX - rect.left;
+      const xInChart = Math.max(0, Math.min(usableW, xPx - PAD_X * scale));
+      const t = usableW > 0 ? xInChart / usableW : 0;
+      const idx = Math.round(t * (MORPH_N - 1));
+      return { idx, leftPct: ((PAD_X + t * CHART_W * widthFrac) / W) * 100 };
+    }
+
+    function showScrubAt(clientX) {
+      const { idx, leftPct } = pointToValue(clientX);
+      const pt = currentPoints[idx];
+      // Map y back to a price using the active series's min/max
+      const min = Math.min.apply(null, series);
+      const max = Math.max.apply(null, series);
+      const range = Math.max(max - min, 0.0001);
+      const yNorm = 1 - (pt.y - PAD_TOP) / CHART_H;
+      const value = min + yNorm * range;
+      const topPct = (pt.y / H) * 100;
+
+      elTipPrice.textContent = fmtUsd(value);
+      elTipTime.textContent  = scrubLabel(activeTf, Math.round((idx / (MORPH_N - 1)) * (series.length - 1)));
+
+      elVline.style.left = leftPct + '%';
+
+      // Tooltip — clamp horizontally so it doesn't clip the chart edges
+      const rect = elChart.getBoundingClientRect();
+      const ttWidthPct = (96 / rect.width) * 100;
+      const halfPct = ttWidthPct / 2;
+      let tipLeft = leftPct;
+      let tipTransform = 'translateX(-50%)';
+      if (leftPct - halfPct < 2) { tipLeft = 2; tipTransform = 'translateX(0)'; }
+      else if (leftPct + halfPct > 98) { tipLeft = 98; tipTransform = 'translateX(-100%)'; }
+      elTooltip.style.left = tipLeft + '%';
+      elTooltip.style.top  = '8px';
+      elTooltip.style.transform = tipTransform;
+
+      elDot.style.left = leftPct + '%';
+      elDot.style.top  = topPct + '%';
+    }
+
+    function scrubLabel(tf, idx) {
+      const total = series.length;
+      const ago = total - 1 - idx; // points ago from "now"
+      const now = new Date();
+      if (tf === '1D') {
+        const t = new Date(now.getTime() - ago * 5 * 60 * 1000);
+        return t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      }
+      if (tf === '1W') {
+        const t = new Date(now.getTime() - ago * 60 * 60 * 1000 * 2);
+        return t.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' });
+      }
+      if (tf === '1M' || tf === '3M' || tf === '6M') {
+        const t = new Date(now.getTime() - ago * 24 * 60 * 60 * 1000);
+        return t.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+      const t = new Date(now);
+      t.setMonth(t.getMonth() - ago);
+      return t.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    function startScrub(clientX) {
+      scrubActive = true;
+      elChart.classList.add('is-scrubbing');
+      elDot.style.transition = 'none';
+      showScrubAt(clientX);
+    }
+    function moveScrub(clientX) {
+      if (!scrubActive) return;
+      showScrubAt(clientX);
+    }
+    function endScrub() {
+      if (!scrubActive) return;
+      scrubActive = false;
+      elChart.classList.remove('is-scrubbing');
+      // Restore dot to the live point
+      const last = currentPoints[currentPoints.length - 1];
+      elDot.style.left = ((last.x / W) * 100) + '%';
+      elDot.style.top  = ((last.y / H) * 100) + '%';
+    }
+
+    elChart.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('.chart__expand')) return;
+      e.preventDefault();
+      elChart.setPointerCapture(e.pointerId);
+      startScrub(e.clientX);
+    });
+    elChart.addEventListener('pointermove', (e) => moveScrub(e.clientX));
+    elChart.addEventListener('pointerup',     endScrub);
+    elChart.addEventListener('pointercancel', endScrub);
+    elChart.addEventListener('pointerleave',  endScrub);
+
+    // ── App-bar collapse on scroll ──
+    const scrollEl = elChart.closest('.screen__body');
+    const phoneScreen = elChart.closest('.phone__screen');
+    if (scrollEl) {
+      // Threshold: when the inline product info is mostly out of view
+      const THRESHOLD = 80;
+      const onScroll = () => {
+        const scrolled = scrollEl.scrollTop > THRESHOLD;
+        elAppbar.classList.toggle('is-scrolled', scrolled);
+        if (phoneScreen) phoneScreen.classList.toggle('is-scrolled', scrolled);
+      };
+      scrollEl.addEventListener('scroll', onScroll, { passive: true });
+    }
+
+    // ── Init ──
+    renderChart(series);
+    renderPriceTexts(series, activeTf);
+
+    // Tick interval — slow enough to feel "live", not noisy
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setInterval(tickPrice, reduceMotion ? 4000 : 1800);
+  })();
+</script>
+
+<script>
+  (function () {
+    const screens = Array.from(document.querySelectorAll('.screen'));
+    const order   = screens.map(s => s.dataset.screen);
+    const history = [order[0]];
+
+    function show(id, { pushHistory = true } = {}) {
+      const target = screens.find(s => s.dataset.screen === id);
+      if (!target) return;
+      screens.forEach(s => s.classList.remove('is-active'));
+      target.classList.add('is-active');
+      target.querySelector('.screen__body')?.scrollTo({ top: 0 });
+      if (pushHistory && history[history.length - 1] !== id) history.push(id);
+      document.getElementById('screen-label').textContent = id;
+      updateNavButtons();
+    }
+
+    function back() {
+      if (history.length <= 1) return;
+      history.pop();
+      show(history[history.length - 1], { pushHistory: false });
+    }
+
+    function updateNavButtons() {
+      const current = history[history.length - 1];
+      const idx = order.indexOf(current);
+      document.getElementById('btn-prev').disabled = idx <= 0;
+      document.getElementById('btn-next').disabled = idx >= order.length - 1;
+    }
+
+    document.addEventListener('click', (e) => {
+      const goEl   = e.target.closest('[data-go]');
+      const backEl = e.target.closest('[data-back]');
+      if (goEl)   { show(goEl.dataset.go); return; }
+      if (backEl) { back(); return; }
+    });
+
+    document.getElementById('btn-prev').addEventListener('click', () => {
+      const idx = order.indexOf(history[history.length - 1]);
+      if (idx > 0) show(order[idx - 1]);
+    });
+    document.getElementById('btn-next').addEventListener('click', () => {
+      const idx = order.indexOf(history[history.length - 1]);
+      if (idx < order.length - 1) show(order[idx + 1]);
+    });
+    document.getElementById('btn-restart').addEventListener('click', () => {
+      history.length = 0;
+      history.push(order[0]);
+      show(order[0], { pushHistory: false });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') document.getElementById('btn-next').click();
+      if (e.key === 'ArrowLeft')  document.getElementById('btn-prev').click();
+    });
+
+    updateNavButtons();
+  })();
+</script>
+
+</body>
+</html>
