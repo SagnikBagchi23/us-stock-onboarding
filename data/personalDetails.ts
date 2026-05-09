@@ -45,6 +45,13 @@ export const SOURCE_OF_FUNDS = [
   'Others',
 ] as const;
 
+export const AFFILIATION_OPTIONS = [
+  'I am an employee, director, or 10%+ shareholder of a broker-dealer or financial services firm',
+  'I am a director, senior officer, or 10%+ shareholder of a publicly listed company',
+  'I am (or a close family member is) a Politically Exposed Person (PEP)',
+  'None of the above',
+] as const;
+
 export const PERSONAL_DETAILS_DEFAULTS = {
   employment: 'Employed',
   annualIncome: '50 Lakhs - 1 Crore',

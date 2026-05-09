@@ -96,7 +96,7 @@ export default function ActivateScreen() {
       </ScrollView>
 
       <StickyCTA floating>
-        <Button onPress={() => { /* next step out of scope */ }}>Continue</Button>
+        <Button onPress={() => router.push('/affiliation')}>Continue</Button>
       </StickyCTA>
 
       {/* Selector sheets — only one mounted at a time via the `sheet` discriminator */}

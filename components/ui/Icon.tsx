@@ -16,6 +16,7 @@ const CODEPOINTS = {
   batteryFull: 0xf16dc,      // hgi-battery-full
   informationCircle: 0xf1eba, // hgi-information-circle
   tick: 0xf2830,             // hgi-tick-01
+  shieldCheck: 0xf2562,      // hgi-security-check
 } as const;
 
 export type IconName = keyof typeof CODEPOINTS;

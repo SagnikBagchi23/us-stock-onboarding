@@ -28,17 +28,21 @@ export function Button({ variant = 'primary', onPress, children, style, disabled
   }));
 
   const bg =
-    variant === 'primary'
-      ? colors.backgroundAccent
-      : variant === 'secondary'
-        ? colors.backgroundTertiary
-        : 'transparent';
+    disabled
+      ? colors.backgroundDisabled
+      : variant === 'primary'
+        ? colors.backgroundAccent
+        : variant === 'secondary'
+          ? colors.backgroundTertiary
+          : 'transparent';
   const fg =
-    variant === 'primary'
-      ? colors.contentOnColour
-      : variant === 'secondary'
-        ? colors.contentPrimary
-        : colors.contentAccent;
+    disabled
+      ? colors.contentDisabled
+      : variant === 'primary'
+        ? colors.contentOnColour
+        : variant === 'secondary'
+          ? colors.contentPrimary
+          : colors.contentAccent;
 
   return (
     <AnimatedPressable
