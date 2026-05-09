@@ -41,6 +41,7 @@ export default function ActivateScreen() {
 
   const [sheet, setSheet] = useState<SheetKey>(null);
   const closeSheet = () => setSheet(null);
+  const [atBottom, setAtBottom] = useState(false);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>
@@ -62,6 +63,10 @@ export default function ActivateScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingTop: spacing.lg, paddingBottom: spacing.lg, gap: spacing.xl }}
         showsVerticalScrollIndicator={false}
+        onScroll={({ nativeEvent: { contentOffset, layoutMeasurement, contentSize } }) => {
+          setAtBottom(contentOffset.y + layoutMeasurement.height >= contentSize.height - 20);
+        }}
+        scrollEventThrottle={16}
       >
         <SelectField
           label="Employment status"
@@ -95,7 +100,7 @@ export default function ActivateScreen() {
         />
       </ScrollView>
 
-      <StickyCTA floating>
+      <StickyCTA atBottom={atBottom}>
         <Button onPress={() => router.push('/affiliation')}>Continue</Button>
       </StickyCTA>
 

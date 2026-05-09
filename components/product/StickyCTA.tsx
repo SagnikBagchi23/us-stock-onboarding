@@ -5,15 +5,22 @@ import { useTheme } from '@/constants/theme';
 
 interface StickyCTAProps {
   children: React.ReactNode;
-  // When true, render with no background fill or top divider.
-  // Use on screens where there isn't enough scroll content beneath the CTA
-  // for the dock affordance to feel meaningful.
   floating?: boolean;
+  atBottom?: boolean;
 }
 
-export function StickyCTA({ children, floating = false }: StickyCTAProps) {
+export function StickyCTA({ children, floating = false, atBottom = false }: StickyCTAProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+
+  const bg = floating
+    ? undefined
+    : atBottom
+      ? colors.backgroundPrimary
+      : colors.backgroundSurfaceDocked;
+
+  const showDivider = !floating && !atBottom;
+
   return (
     <View
       style={[
@@ -21,13 +28,13 @@ export function StickyCTA({ children, floating = false }: StickyCTAProps) {
         {
           paddingBottom: 16 + 12 + insets.bottom,
         },
-        floating
-          ? null
-          : {
-              backgroundColor: colors.backgroundSurfaceDocked,
+        bg ? { backgroundColor: bg } : null,
+        showDivider
+          ? {
               borderTopWidth: StyleSheet.hairlineWidth,
               borderTopColor: colors.borderPrimary,
-            },
+            }
+          : null,
       ]}
     >
       {children}

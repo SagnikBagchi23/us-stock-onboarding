@@ -37,7 +37,10 @@ export function BottomSheet({ visible, onClose, children, sheetHeight }: BottomS
   useEffect(() => {
     if (visible) {
       setMounted(true);
-      progress.value = withTiming(1, { duration: ENTER_MS, easing: ENTER_EASE });
+      const id = requestAnimationFrame(() => {
+        progress.value = withTiming(1, { duration: ENTER_MS, easing: ENTER_EASE });
+      });
+      return () => cancelAnimationFrame(id);
     } else if (mounted) {
       progress.value = withTiming(0, { duration: EXIT_MS, easing: EXIT_EASE }, (finished) => {
         if (finished) runOnJS(setMounted)(false);

@@ -28,7 +28,10 @@ export function ActivateSheetContent({ onStart }: ActivateSheetContentProps) {
           Activate US Stocks
         </Text>
         <Text style={[textStyles.bodyBase, styles.center, { color: colors.contentSecondary }]}>
-          Start onboarding to buy your first US stock on Groww. It&rsquo;ll just take a minute.
+          Start onboarding to buy your first US stock on Groww.
+        </Text>
+        <Text style={[textStyles.bodyBase, styles.center, { color: colors.contentSecondary }]} numberOfLines={1}>
+          It&rsquo;ll just take a minute.
         </Text>
       </View>
 

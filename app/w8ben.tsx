@@ -22,6 +22,7 @@ export default function W8BENScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [atBottom, setAtBottom] = useState(false);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>
@@ -35,6 +36,10 @@ export default function W8BENScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        onScroll={({ nativeEvent: { contentOffset, layoutMeasurement, contentSize } }) => {
+          setAtBottom(contentOffset.y + layoutMeasurement.height >= contentSize.height - 20);
+        }}
+        scrollEventThrottle={16}
       >
         <View style={styles.titleBlock}>
           <Text style={[textStyles.headingLarge, { color: colors.contentPrimary }]}>W-8BEN Certification</Text>
@@ -61,7 +66,7 @@ export default function W8BENScreen() {
         </Text>
       </ScrollView>
 
-      <StickyCTA floating>
+      <StickyCTA atBottom={atBottom}>
         <Button onPress={() => {}}>Agree and continue</Button>
       </StickyCTA>
     </View>
