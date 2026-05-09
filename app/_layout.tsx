@@ -24,13 +24,17 @@ export default function RootLayout() {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     let cancelled = false;
-    import('@shopify/react-native-skia/lib/module/web').then(({ LoadSkiaWeb }) => {
-      LoadSkiaWeb({
-        locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/canvaskit-wasm@0.41.1/bin/full/${file}`,
-      }).then(() => {
+    import('@shopify/react-native-skia/lib/module/web')
+      .then(({ LoadSkiaWeb }) =>
+        LoadSkiaWeb({ locateFile: (file: string) => `/${file}` }),
+      )
+      .then(() => {
+        if (!cancelled) setSkiaReady(true);
+      })
+      .catch(() => {
+        // Skia WASM failed — allow the app to render without the chart.
         if (!cancelled) setSkiaReady(true);
       });
-    });
     return () => {
       cancelled = true;
     };
