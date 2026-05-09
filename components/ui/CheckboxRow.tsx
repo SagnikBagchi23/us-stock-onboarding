@@ -4,7 +4,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSpring,
 } from 'react-native-reanimated';
 import { useTheme } from '@/constants/theme';
 import { textStyles, spacing, easing } from '@/constants/tokens';
@@ -26,11 +25,9 @@ export function CheckboxRow({ label, checked, onToggle }: CheckboxRowProps) {
 
   useEffect(() => {
     if (checked) {
-      // Spring pop on check — deliberate, satisfying
-      checkScale.value = withSpring(1, { duration: 220, dampingRatio: 0.6 });
+      checkScale.value = withTiming(1, { duration: 150, easing: easing.out });
       checkOpacity.value = withTiming(1, { duration: 120, easing: easing.out });
     } else {
-      // Snap off — fast, responsive
       checkScale.value = withTiming(0, { duration: 100, easing: easing.out });
       checkOpacity.value = withTiming(0, { duration: 80, easing: easing.out });
     }
