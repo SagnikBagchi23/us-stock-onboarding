@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, StyleSheet, type LayoutChangeEvent } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import type { SharedValue } from 'react-native-reanimated';
 import Animated, {
   useSharedValue,
@@ -148,6 +149,7 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
     seriesRef.current = next;
     morphTo(next, activeTf);
     onSeriesChange(next, activeTf);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTf]);
 
@@ -177,6 +179,7 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
     const s = seriesRef.current;
     const seriesIdx = Math.round((idx / (MORPH_N - 1)) * (s.length - 1));
     setTooltipText(scrubTooltip(activeTf, s, seriesIdx));
+    Haptics.selectionAsync();
   }, [activeTf]);
 
   const pan = useMemo(() => Gesture.Pan()
