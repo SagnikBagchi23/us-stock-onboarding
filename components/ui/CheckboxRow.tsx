@@ -13,9 +13,10 @@ interface CheckboxRowProps {
   label: string;
   checked: boolean;
   onToggle: () => void;
+  labelOffset?: number;
 }
 
-export function CheckboxRow({ label, checked, onToggle }: CheckboxRowProps) {
+export function CheckboxRow({ label, checked, onToggle, labelOffset }: CheckboxRowProps) {
   const { colors } = useTheme();
   const checkScale = useSharedValue(checked ? 1 : 0);
   const checkOpacity = useSharedValue(checked ? 1 : 0);
@@ -56,7 +57,7 @@ export function CheckboxRow({ label, checked, onToggle }: CheckboxRowProps) {
           <Icon name="tick" size={13} color={colors.contentOnColour} />
         </Animated.View>
       </View>
-      <Text style={[textStyles.bodyBase, styles.label, { color: colors.contentPrimary }]}>
+      <Text style={[textStyles.bodyBase, styles.label, { color: colors.contentPrimary, marginTop: labelOffset }]}>
         {label}
       </Text>
     </Pressable>

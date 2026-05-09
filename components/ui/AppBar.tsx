@@ -37,7 +37,7 @@ export function AppBar({ onBack, scrolled, title }: AppBarProps) {
     <Animated.View style={[styles.bar, containerStyle]}>
       <IconButton name="arrowLeft" onPress={onBack} ariaLabel="Back" />
       {title ? (
-        <Animated.Text style={[textStyles.bodyBaseHeavy, styles.title, { color: colors.contentPrimary }, titleStyle]}>
+        <Animated.Text style={[textStyles.headingBase, styles.title, { color: colors.contentPrimary }, titleStyle]}>
           {title}
         </Animated.Text>
       ) : null}

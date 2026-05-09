@@ -62,6 +62,7 @@ export default function AffiliationScreen() {
               label={option}
               checked={selected.has(i)}
               onToggle={() => toggleOption(i)}
+              labelOffset={i === AFFILIATION_OPTIONS.length - 1 ? 2 : undefined}
             />
           ))}
         </View>

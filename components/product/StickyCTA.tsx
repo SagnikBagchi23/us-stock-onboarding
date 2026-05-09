@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/constants/theme';
 
@@ -7,9 +7,10 @@ interface StickyCTAProps {
   children: React.ReactNode;
   floating?: boolean;
   atBottom?: boolean;
+  style?: ViewStyle;
 }
 
-export function StickyCTA({ children, floating = false, atBottom = false }: StickyCTAProps) {
+export function StickyCTA({ children, floating = false, atBottom = false, style }: StickyCTAProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -35,6 +36,7 @@ export function StickyCTA({ children, floating = false, atBottom = false }: Stic
               borderTopColor: colors.borderPrimary,
             }
           : null,
+        style ?? null,
       ]}
     >
       {children}
