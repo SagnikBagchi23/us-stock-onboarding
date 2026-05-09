@@ -1,11 +1,10 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Animated, {
   useAnimatedScrollHandler,
   useDerivedValue,
   useSharedValue,
   withTiming,
-  runOnJS,
 } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,11 +37,6 @@ export default function AgreementsScreen() {
   const insets = useSafeAreaInsets();
 
   const [checked, setChecked] = useState<boolean[]>(AGREEMENTS.map(() => true));
-  const allChecked = checked.every(Boolean);
-
-  const [hasOverflow, setHasOverflow] = useState(false);
-  const [atBottom, setAtBottom] = useState(false);
-  const scrollViewHeight = useRef(0);
 
   const scrollY = useSharedValue(0);
   const scrolled = useDerivedValue<number>(() => {
@@ -50,14 +44,9 @@ export default function AgreementsScreen() {
     return withTiming(target, { duration: motion.appbarFade, easing: easing.out });
   });
 
-  const checkBottom = useCallback((offset: number, viewport: number, content: number) => {
-    setAtBottom(offset + viewport >= content - 20);
-  }, []);
-
   const onScroll = useAnimatedScrollHandler({
     onScroll: (e) => {
       scrollY.value = e.contentOffset.y;
-      runOnJS(checkBottom)(e.contentOffset.y, e.layoutMeasurement.height, e.contentSize.height);
     },
   });
 
@@ -74,12 +63,6 @@ export default function AgreementsScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        onLayout={({ nativeEvent: { layout } }) => {
-          scrollViewHeight.current = layout.height;
-        }}
-        onContentSizeChange={(_w, contentHeight) => {
-          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
-        }}
         onScroll={onScroll}
         scrollEventThrottle={16}
       >

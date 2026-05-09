@@ -75,13 +75,9 @@ export default function ProductScreen() {
   const onScroll = useAnimatedScrollHandler({
     onScroll: (e) => {
       scrollY.value = e.contentOffset.y;
-      runOnJS(checkBottom)(e.contentOffset.y, e.layoutMeasurement.height, e.contentSize.height);
+      runOnJS(setAtBottom)(e.contentOffset.y + e.layoutMeasurement.height >= e.contentSize.height - 20);
     },
   });
-
-  const checkBottom = useCallback((offset: number, viewport: number, content: number) => {
-    setAtBottom(offset + viewport >= content - 20);
-  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>

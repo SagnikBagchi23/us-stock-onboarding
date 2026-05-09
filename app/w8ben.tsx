@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated, {
   useAnimatedScrollHandler,
@@ -42,14 +42,10 @@ export default function W8BENScreen() {
     return withTiming(target, { duration: motion.appbarFade, easing: easing.out });
   });
 
-  const checkBottom = useCallback((offset: number, viewport: number, content: number) => {
-    setAtBottom(offset + viewport >= content - 20);
-  }, []);
-
   const onScroll = useAnimatedScrollHandler({
     onScroll: (e) => {
       scrollY.value = e.contentOffset.y;
-      runOnJS(checkBottom)(e.contentOffset.y, e.layoutMeasurement.height, e.contentSize.height);
+      runOnJS(setAtBottom)(e.contentOffset.y + e.layoutMeasurement.height >= e.contentSize.height - 20);
     },
   });
 

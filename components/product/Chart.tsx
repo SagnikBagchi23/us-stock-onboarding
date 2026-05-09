@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, View, Text, StyleSheet, type LayoutChangeEvent } from 'react-native';
+import { View, Text, StyleSheet, type LayoutChangeEvent } from 'react-native';
 import { Canvas, Path, Group, Skia, type SkPath } from '@shopify/react-native-skia';
+import { useSkiaReady } from '@/utils/skia';
+import type { SharedValue } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import Animated, {
   useSharedValue,
@@ -35,6 +37,39 @@ import { IconButton } from '@/components/ui/IconButton';
 
 const CHART_HEIGHT = 340;
 
+interface SkiaCanvasProps {
+  currentPoints: SharedValue<ChartPoint[]>;
+  scale: number;
+  scaledHeight: number;
+  positive: boolean;
+  colors: { contentPositive: string; contentNegative: string };
+}
+
+// Isolated so Skia.Path.Make() worklet never runs before CanvasKit WASM is ready.
+function SkiaCanvas({ currentPoints, scale, scaledHeight, positive, colors }: SkiaCanvasProps) {
+  const skPath = useDerivedValue<SkPath>(() => {
+    const pts = currentPoints.value;
+    const p = Skia.Path.Make();
+    p.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) p.lineTo(pts[i].x, pts[i].y);
+    return p;
+  });
+  return (
+    <Canvas style={{ width: scale * CHART_VIEWBOX_W, height: scaledHeight }}>
+      <Group transform={[{ scale }]}>
+        <Path
+          path={skPath}
+          style="stroke"
+          strokeWidth={1.5}
+          color={positive ? colors.contentPositive : colors.contentNegative}
+          strokeJoin="round"
+          strokeCap="round"
+        />
+      </Group>
+    </Canvas>
+  );
+}
+
 interface ChartProps {
   initialPrice: number;
   activeTf: Timeframe;
@@ -45,6 +80,8 @@ interface ChartProps {
 
 export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }: ChartProps) {
   const { colors } = useTheme();
+
+  const canvasReady = useSkiaReady();
 
   // ── JS-side state: the source-of-truth series for the active timeframe.
   const seriesRef = useRef<number[]>(generateSeries(activeTf, initialPrice, hashTf(activeTf)));
@@ -87,15 +124,6 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
       };
     }
     return out;
-  });
-
-  // ── Derived: Skia path built from current points, in viewBox coords
-  const skPath = useDerivedValue<SkPath>(() => {
-    const pts = currentPoints.value;
-    const p = Skia.Path.Make();
-    p.moveTo(pts[0].x, pts[0].y);
-    for (let i = 1; i < pts.length; i++) p.lineTo(pts[i].x, pts[i].y);
-    return p;
   });
 
   // Scale factor from viewBox coords → screen px
@@ -243,12 +271,14 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
     <View style={[styles.chart, { height: CHART_HEIGHT }]} onLayout={onLayout}>
       <GestureDetector gesture={pan}>
         <View style={StyleSheet.absoluteFill}>
-          {size.w > 0 && (
-            <Canvas style={{ width: size.w, height: scaledHeight }}>
-              <Group transform={[{ scale }]}>
-                <Path path={skPath} style="stroke" strokeWidth={1.5} color={positive ? colors.contentPositive : colors.contentNegative} strokeJoin="round" strokeCap="round" />
-              </Group>
-            </Canvas>
+          {size.w > 0 && canvasReady && (
+            <SkiaCanvas
+              currentPoints={currentPoints}
+              scale={scale}
+              scaledHeight={scaledHeight}
+              positive={positive}
+              colors={colors}
+            />
           )}
 
           {/* Horizontal LTP line */}
