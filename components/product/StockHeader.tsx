@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/constants/theme';
-import { textStyles, spacing, radius } from '@/constants/tokens';
+import { textStyles, spacing } from '@/constants/tokens';
 import { GoogleLogo } from './GoogleLogo';
 
 interface StockHeaderProps {
@@ -18,8 +18,8 @@ export function StockHeader({ ticker, name, price, change, changePositive, perio
 
   return (
     <View style={styles.container}>
-      <View style={[styles.logo, { backgroundColor: colors.backgroundSurfaceZ1 }]}>
-        <GoogleLogo size={22} />
+      <View style={styles.logo}>
+        <GoogleLogo size={32} />
       </View>
 
       <View>
@@ -55,10 +55,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 32,
     height: 32,
-    borderRadius: radius.sm + 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
   },
   priceRow: {
     flexDirection: 'row',
