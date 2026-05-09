@@ -45,7 +45,7 @@ export default function AffiliationScreen() {
 
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 28 + insets.bottom }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.titleBlock}>
@@ -64,21 +64,13 @@ export default function AffiliationScreen() {
             />
           ))}
         </View>
-      </ScrollView>
 
-      <View
-        style={[
-          styles.docked,
-          {
-            backgroundColor: colors.backgroundSurfaceDocked,
-            paddingBottom: spacing.lg + insets.bottom,
-          },
-        ]}
-      >
-        <Button disabled={selected.size === 0} onPress={() => {}}>
-          Continue
-        </Button>
-      </View>
+        <View style={styles.cta}>
+          <Button disabled={selected.size === 0} onPress={() => router.push('/w8ben')}>
+            Continue
+          </Button>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -94,7 +86,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
   },
   scrollContent: {
-    paddingBottom: spacing.xl,
+    paddingTop: spacing.xs,
   },
   titleBlock: {
     paddingHorizontal: spacing.lg,
@@ -104,8 +96,8 @@ const styles = StyleSheet.create({
     gap: spacing.xxl,
     paddingTop: spacing.sm,
   },
-  docked: {
-    paddingTop: spacing.lg,
+  cta: {
     paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
   },
 });
