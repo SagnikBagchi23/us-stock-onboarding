@@ -26,6 +26,11 @@
       "eas": {
         "projectId": "927c52f3-2c28-4d32-997e-64d41eeed76a"
       }
+    },
+    "owner": "sagnik23",
+    "runtimeVersion": "exposdk:54.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/927c52f3-2c28-4d32-997e-64d41eeed76a"
     }
   }
 }

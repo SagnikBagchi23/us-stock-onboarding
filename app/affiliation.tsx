@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -18,6 +18,15 @@ export default function AffiliationScreen() {
   const insets = useSafeAreaInsets();
 
   const [selected, setSelected] = useState<Set<number>>(new Set());
+
+  const [hasOverflow, setHasOverflow] = useState(false);
+  const [atBottom, setAtBottom] = useState(false);
+  const scrollViewHeight = useRef(0);
+
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, layoutMeasurement, contentSize } = e.nativeEvent;
+    setAtBottom(contentOffset.y + layoutMeasurement.height >= contentSize.height - 20);
+  };
 
   const NONE_INDEX = AFFILIATION_OPTIONS.length - 1;
 
@@ -48,6 +57,14 @@ export default function AffiliationScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: spacing.xl }]}
         showsVerticalScrollIndicator={false}
+        onLayout={({ nativeEvent: { layout } }) => {
+          scrollViewHeight.current = layout.height;
+        }}
+        onContentSizeChange={(_w, contentHeight) => {
+          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+        }}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
       >
         <View style={styles.titleBlock}>
           <Text style={[textStyles.headingLarge, { color: colors.contentPrimary }]}>
@@ -68,7 +85,7 @@ export default function AffiliationScreen() {
         </View>
       </ScrollView>
 
-      <StickyCTA floating>
+      <StickyCTA atBottom={!hasOverflow || atBottom}>
         <Button disabled={selected.size === 0} onPress={() => router.push('/w8ben')}>
           Continue
         </Button>

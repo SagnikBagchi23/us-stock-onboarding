@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -30,7 +29,6 @@ const EXIT_EASE = appEasing.out;
 // Stays mounted while the close animation plays, then unmounts to release the layer.
 export function BottomSheet({ visible, onClose, children, sheetHeight }: BottomSheetProps) {
   const { colors } = useTheme();
-  const { bottom: bottomInset } = useSafeAreaInsets();
   const progress = useSharedValue(0); // 0 = closed, 1 = open
   const [mounted, setMounted] = useState(visible);
 
@@ -67,7 +65,7 @@ export function BottomSheet({ visible, onClose, children, sheetHeight }: BottomS
       <Animated.View
         style={[
           styles.sheet,
-          { backgroundColor: colors.backgroundSurfaceZ1, bottom: -bottomInset },
+          { backgroundColor: colors.backgroundSurfaceZ1 },
           sheetStyle,
         ]}
       >

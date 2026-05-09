@@ -10,6 +10,7 @@ import Animated, {
   runOnUI,
   cancelAnimation,
 } from 'react-native-reanimated';
+import Svg, { Line } from 'react-native-svg';
 
 import { useTheme } from '@/constants/theme';
 import { textStyles, motion, easing, radius } from '@/constants/tokens';
@@ -238,8 +239,20 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
           {/* Vertical scrub line */}
           <Animated.View
             pointerEvents="none"
-            style={[styles.vline, { borderLeftColor: colors.chartGrid }, verticalLineStyle]}
-          />
+            style={[styles.vline, verticalLineStyle]}
+          >
+            <Svg width={1} height={CHART_HEIGHT}>
+              <Line
+                x1={0.5}
+                y1={0}
+                x2={0.5}
+                y2={CHART_HEIGHT}
+                stroke={colors.borderPrimary}
+                strokeWidth={1}
+                strokeDasharray="3,3"
+              />
+            </Svg>
+          </Animated.View>
 
           {/* Tooltip — width hugs content, measured via onLayout */}
           <Animated.View
@@ -298,8 +311,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 1,
-    borderLeftWidth: 1,
-    borderStyle: 'dashed',
   },
   tooltip: {
     position: 'absolute',

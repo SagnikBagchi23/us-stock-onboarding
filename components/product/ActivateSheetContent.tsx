@@ -34,7 +34,7 @@ export function ActivateSheetContent({ onStart }: ActivateSheetContentProps) {
         </Text>
       </View>
 
-      <StickyCTA floating style={{ alignSelf: 'stretch' }}>
+      <StickyCTA noDivider style={{ alignSelf: 'stretch' }}>
         <Button onPress={onStart}>Start now</Button>
       </StickyCTA>
     </View>

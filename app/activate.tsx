@@ -1,10 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated, {
   useAnimatedScrollHandler,
   useDerivedValue,
   useSharedValue,
   withTiming,
+  runOnJS,
 } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -50,6 +51,10 @@ export default function ActivateScreen() {
   const [sheet, setSheet] = useState<SheetKey>(null);
   const closeSheet = () => setSheet(null);
 
+  const [hasOverflow, setHasOverflow] = useState(false);
+  const [atBottom, setAtBottom] = useState(false);
+  const scrollViewHeight = useRef(0);
+
   const scrollY = useSharedValue(0);
   const scrolled = useDerivedValue<number>(() => {
     const target = scrollY.value > COLLAPSE_THRESHOLD ? 1 : 0;
@@ -59,6 +64,7 @@ export default function ActivateScreen() {
   const onScroll = useAnimatedScrollHandler({
     onScroll: (e) => {
       scrollY.value = e.contentOffset.y;
+      runOnJS(setAtBottom)(e.contentOffset.y + e.layoutMeasurement.height >= e.contentSize.height - 20);
     },
   });
 
@@ -71,6 +77,12 @@ export default function ActivateScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        onLayout={({ nativeEvent: { layout } }) => {
+          scrollViewHeight.current = layout.height;
+        }}
+        onContentSizeChange={(_w, contentHeight) => {
+          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+        }}
         onScroll={onScroll}
         scrollEventThrottle={16}
       >
@@ -113,7 +125,7 @@ export default function ActivateScreen() {
         />
       </Animated.ScrollView>
 
-      <StickyCTA floating>
+      <StickyCTA atBottom={!hasOverflow || atBottom}>
         <Button onPress={() => router.push('/affiliation')}>Continue</Button>
       </StickyCTA>
 

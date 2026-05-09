@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/constants/theme';
 import { textStyles, spacing } from '@/constants/tokens';
 import { BottomSheet } from '@/components/ui/BottomSheet';
@@ -29,7 +28,6 @@ export function SelectorSheet({
   onSelect,
 }: SelectorSheetProps) {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
 
   // Local staging so a user can change their mind before tapping Done.
   const [pending, setPending] = useState(selected);
@@ -44,10 +42,9 @@ export function SelectorSheet({
     onClose();
   };
 
-  // Header (~56) + rows × 56 + CTA region
-  // (16 top + 48 button + 12 + safe-area + ~20 home indicator slot).
+  // Header (~56) + rows × 56 + CTA region (16 top + 48 button + 28 bottom + ~20 home indicator slot).
   const rowsHeight = options.length * 56;
-  const sheetHeight = 56 + rowsHeight + 16 + 48 + 12 + insets.bottom + 20;
+  const sheetHeight = 56 + rowsHeight + 16 + 48 + 28 + 20;
 
   return (
     <BottomSheet visible={visible} onClose={onClose} sheetHeight={sheetHeight}>
@@ -61,7 +58,7 @@ export function SelectorSheet({
         onSelect={setPending}
       />
 
-      <View style={[styles.footer, { paddingBottom: 16 + 12 + insets.bottom }]}>
+      <View style={styles.footer}>
         <Button onPress={handleDone}>Done</Button>
       </View>
     </BottomSheet>
@@ -77,5 +74,6 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
+    paddingBottom: 28,
   },
 });
