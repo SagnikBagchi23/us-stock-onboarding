@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, type LayoutChangeEvent } from 'react-native';
 import { Canvas, Path, Group, Skia, type SkPath } from '@shopify/react-native-skia';
 import { useSkiaReady } from '@/utils/skia';
 import type { SharedValue } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
 import Animated, {
   useSharedValue,
   useDerivedValue,
@@ -226,12 +225,6 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
     setTooltipText(scrubTooltip(activeTf, s, seriesIdx));
   }, [activeTf]);
 
-  const triggerHaptic = useCallback((kind: 'start' | 'tick') => {
-    if (Platform.OS === 'web') return;
-    if (kind === 'start') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    else Haptics.selectionAsync();
-  }, []);
-
   const pan = useMemo(() => Gesture.Pan()
     .activateAfterLongPress(0)
     .minDistance(0)
@@ -245,7 +238,6 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
       scrubActive.value = 1;
       scrubIdx.value = idx;
       runOnJS(updateScrubLabel)(idx);
-      runOnJS(triggerHaptic)('start');
     })
     .onUpdate((e) => {
       'worklet';
@@ -257,7 +249,6 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
       if (idx !== scrubIdx.value) {
         scrubIdx.value = idx;
         runOnJS(updateScrubLabel)(idx);
-        runOnJS(triggerHaptic)('tick');
       }
     })
     .onFinalize(() => {
@@ -265,7 +256,7 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
       scrubActive.value = 0;
       scrubIdx.value = MORPH_N - 1;
     }),
-  [activeTf, size.w, updateScrubLabel, triggerHaptic, scrubActive, scrubIdx]);
+  [activeTf, size.w, updateScrubLabel, scrubActive, scrubIdx]);
 
   return (
     <View style={[styles.chart, { height: CHART_HEIGHT }]} onLayout={onLayout}>
