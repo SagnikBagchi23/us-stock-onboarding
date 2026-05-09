@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/constants/theme';
 import { textStyles, motion, easing, radius } from '@/constants/tokens';
 import { TIMEFRAME_ORDER, type Timeframe } from '@/utils/chart';
@@ -32,6 +33,7 @@ function Pill({ tf, active, onPress }: { tf: Timeframe; active: boolean; onPress
     <Animated.View style={aStyle}>
       <Pressable
         onPressIn={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           scale.value = withTiming(0.96, { duration: motion.press, easing: easing.out });
         }}
         onPressOut={() => {

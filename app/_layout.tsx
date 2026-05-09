@@ -4,7 +4,6 @@ import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider } from '@/constants/theme';
 import { dark } from '@/constants/tokens';
 import { PhoneFrame } from '@/components/ui/PhoneFrame';
@@ -23,7 +22,7 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: dark.backgroundPrimary }}>
+    <View style={{ flex: 1, backgroundColor: dark.backgroundPrimary }}>
       <SafeAreaProvider>
         <ThemeProvider>
           <ExpoStatusBar style="light" backgroundColor={dark.backgroundPrimary} translucent={false} />
@@ -38,6 +37,6 @@ export default function RootLayout() {
           </PhoneFrame>
         </ThemeProvider>
       </SafeAreaProvider>
-    </GestureHandlerRootView>
+    </View>
   );
 }

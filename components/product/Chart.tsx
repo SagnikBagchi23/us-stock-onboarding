@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, type LayoutChangeEvent } from 'react-native';
+import { View, Text, StyleSheet, PanResponder, type LayoutChangeEvent } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import type { SharedValue } from 'react-native-reanimated';
 import Animated, {
   useSharedValue,
@@ -7,10 +8,9 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   runOnUI,
-  runOnJS,
   cancelAnimation,
 } from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Svg, { Line } from 'react-native-svg';
 
 import { useTheme } from '@/constants/theme';
 import { textStyles, motion, easing, radius } from '@/constants/tokens';
@@ -148,6 +148,7 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
     seriesRef.current = next;
     morphTo(next, activeTf);
     onSeriesChange(next, activeTf);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTf]);
 
@@ -177,45 +178,46 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
     const s = seriesRef.current;
     const seriesIdx = Math.round((idx / (MORPH_N - 1)) * (s.length - 1));
     setTooltipText(scrubTooltip(activeTf, s, seriesIdx));
+    Haptics.selectionAsync();
   }, [activeTf]);
 
-  const pan = useMemo(() => Gesture.Pan()
-    .activateAfterLongPress(0)
-    .minDistance(0)
-    .onBegin((e) => {
-      'worklet';
-      const widthFrac = TIMEFRAMES[activeTf].widthFrac;
-      const scaleW = size.w / CHART_VIEWBOX_W;
-      const usableW = CHART_W * widthFrac * scaleW;
-      const x = Math.max(0, Math.min(usableW, e.x - CHART_PAD_X * scaleW));
-      const idx = Math.round((usableW > 0 ? x / usableW : 0) * (MORPH_N - 1));
+  const computeIdx = useCallback((locationX: number) => {
+    const widthFrac = TIMEFRAMES[activeTf].widthFrac;
+    const scaleW = size.w / CHART_VIEWBOX_W;
+    const usableW = CHART_W * widthFrac * scaleW;
+    const x = Math.max(0, Math.min(usableW, locationX - CHART_PAD_X * scaleW));
+    return Math.round((usableW > 0 ? x / usableW : 0) * (MORPH_N - 1));
+  }, [activeTf, size.w]);
+
+  const pan = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderGrant: (e) => {
+      const idx = computeIdx(e.nativeEvent.locationX);
       scrubActive.value = 1;
       scrubIdx.value = idx;
-      runOnJS(updateScrubLabel)(idx);
-    })
-    .onUpdate((e) => {
-      'worklet';
-      const widthFrac = TIMEFRAMES[activeTf].widthFrac;
-      const scaleW = size.w / CHART_VIEWBOX_W;
-      const usableW = CHART_W * widthFrac * scaleW;
-      const x = Math.max(0, Math.min(usableW, e.x - CHART_PAD_X * scaleW));
-      const idx = Math.round((usableW > 0 ? x / usableW : 0) * (MORPH_N - 1));
+      updateScrubLabel(idx);
+    },
+    onPanResponderMove: (e) => {
+      const idx = computeIdx(e.nativeEvent.locationX);
       if (idx !== scrubIdx.value) {
         scrubIdx.value = idx;
-        runOnJS(updateScrubLabel)(idx);
+        updateScrubLabel(idx);
       }
-    })
-    .onFinalize(() => {
-      'worklet';
+    },
+    onPanResponderRelease: () => {
       scrubActive.value = 0;
       scrubIdx.value = MORPH_N - 1;
-    }),
-  [activeTf, size.w, updateScrubLabel, scrubActive, scrubIdx]);
+    },
+    onPanResponderTerminate: () => {
+      scrubActive.value = 0;
+      scrubIdx.value = MORPH_N - 1;
+    },
+  }), [computeIdx, updateScrubLabel, scrubActive, scrubIdx]);
 
   return (
     <View style={[styles.chart, { height: CHART_HEIGHT }]} onLayout={onLayout}>
-      <GestureDetector gesture={pan}>
-        <View style={StyleSheet.absoluteFill}>
+      <View style={StyleSheet.absoluteFill} {...pan.panHandlers}>
           {size.w > 0 && (
             <SvgCanvas
               currentPoints={currentPoints}
@@ -237,8 +239,20 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
           {/* Vertical scrub line */}
           <Animated.View
             pointerEvents="none"
-            style={[styles.vline, { borderLeftColor: colors.chartGrid }, verticalLineStyle]}
-          />
+            style={[styles.vline, verticalLineStyle]}
+          >
+            <Svg width={1} height={CHART_HEIGHT}>
+              <Line
+                x1={0.5}
+                y1={0}
+                x2={0.5}
+                y2={CHART_HEIGHT}
+                stroke={colors.borderPrimary}
+                strokeWidth={1}
+                strokeDasharray="3,3"
+              />
+            </Svg>
+          </Animated.View>
 
           {/* Tooltip — width hugs content, measured via onLayout */}
           <Animated.View
@@ -259,8 +273,7 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
             <Text style={[textStyles.bodyXSmallHeavy, { color: colors.contentTertiary }]}>{tooltipText.time}</Text>
           </Animated.View>
 
-        </View>
-      </GestureDetector>
+      </View>
 
       {/* Expand button (decorative — no-op in HTML reference) */}
       <View style={styles.expand}>
@@ -298,8 +311,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 1,
-    borderLeftWidth: 1,
-    borderStyle: 'dashed',
   },
   tooltip: {
     position: 'absolute',
