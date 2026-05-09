@@ -31,7 +31,6 @@ import {
 } from '@/utils/chart';
 import { fmtUsd, scrubTooltip } from '@/utils/format';
 import { IconButton } from '@/components/ui/IconButton';
-import { LiveDot } from '@/components/ui/LiveDot';
 import SvgCanvas from './SvgCanvas';
 
 const CHART_HEIGHT = 340;
@@ -93,16 +92,6 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
   // Scale factor from viewBox coords → screen px
   const scale = size.w > 0 ? size.w / CHART_VIEWBOX_W : 1;
   const scaledHeight = CHART_VIEWBOX_H * scale;
-
-  // ── Last-point indicator (dot + horizontal line) — driven by current geometry
-  const lastPointStyle = useAnimatedStyle(() => {
-    const idx = scrubActive.value === 1 ? scrubIdx.value : MORPH_N - 1;
-    const pt = currentPoints.value[idx];
-    return {
-      left: pt.x * scale - 10,
-      top: pt.y * scale - 10,
-    };
-  });
 
   const horizontalLineStyle = useAnimatedStyle(() => {
     const last = currentPoints.value[MORPH_N - 1];
@@ -268,10 +257,6 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
             <Text style={[textStyles.bodyXSmallHeavy, { color: colors.contentTertiary }]}>{tooltipText.time}</Text>
           </Animated.View>
 
-          {/* Last-point live indicator (pulsating) */}
-          <Animated.View pointerEvents="none" style={[styles.liveDot, lastPointStyle]}>
-            <LiveDot color={positive ? colors.contentPositive : colors.contentNegative} size={20} innerSize={8} />
-          </Animated.View>
         </View>
       </GestureDetector>
 
@@ -323,11 +308,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     gap: 4,
-  },
-  liveDot: {
-    position: 'absolute',
-    width: 20,
-    height: 20,
   },
   expand: {
     position: 'absolute',
