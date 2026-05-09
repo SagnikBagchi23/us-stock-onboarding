@@ -226,11 +226,13 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
             />
           )}
 
-          {/* Horizontal LTP line */}
+          {/* Horizontal LTP line — 1D only */}
+          {activeTf === '1D' && (
           <Animated.View
             pointerEvents="none"
             style={[styles.hline, { borderTopColor: colors.chartGrid }, horizontalLineStyle]}
           />
+          )}
 
           {/* Vertical scrub line */}
           <Animated.View
