@@ -1,14 +1,23 @@
-import React, { useRef, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import React, { useCallback, useRef, useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import Animated, {
+  useAnimatedScrollHandler,
+  useDerivedValue,
+  useSharedValue,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/constants/theme';
-import { textStyles, spacing } from '@/constants/tokens';
+import { textStyles, spacing, easing, motion } from '@/constants/tokens';
 import { StatusBar } from '@/components/ui/StatusBar';
-import { IconButton } from '@/components/ui/IconButton';
+import { AppBar } from '@/components/ui/AppBar';
 import { Button } from '@/components/ui/Button';
 import { StickyCTA } from '@/components/product/StickyCTA';
+
+const COLLAPSE_THRESHOLD = 40;
 
 const BULLET_ITEMS = [
   'I am the individual that is the beneficial owner (or am authorized to sign for the individual that is the beneficial owner) of all the income to which this form relates or am using this form to document myself as an individual that is an owner or account holder of a foreign financial institution.',
@@ -27,15 +36,29 @@ export default function W8BENScreen() {
   const [atBottom, setAtBottom] = useState(false);
   const scrollViewHeight = useRef(0);
 
+  const scrollY = useSharedValue(0);
+  const scrolled = useDerivedValue<number>(() => {
+    const target = scrollY.value > COLLAPSE_THRESHOLD ? 1 : 0;
+    return withTiming(target, { duration: motion.appbarFade, easing: easing.out });
+  });
+
+  const checkBottom = useCallback((offset: number, viewport: number, content: number) => {
+    setAtBottom(offset + viewport >= content - 20);
+  }, []);
+
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: (e) => {
+      scrollY.value = e.contentOffset.y;
+      runOnJS(checkBottom)(e.contentOffset.y, e.layoutMeasurement.height, e.contentSize.height);
+    },
+  });
+
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>
-      <StatusBar />
+      <StatusBar scrolled={scrolled} />
+      <AppBar onBack={() => router.back()} scrolled={scrolled} />
 
-      <View style={styles.appbar}>
-        <IconButton name="arrowLeft" onPress={() => router.back()} ariaLabel="Back" />
-      </View>
-
-      <ScrollView
+      <Animated.ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -45,9 +68,7 @@ export default function W8BENScreen() {
         onContentSizeChange={(_w, contentHeight) => {
           setHasOverflow(contentHeight > scrollViewHeight.current + 1);
         }}
-        onScroll={({ nativeEvent: { contentOffset, layoutMeasurement, contentSize } }) => {
-          setAtBottom(contentOffset.y + layoutMeasurement.height >= contentSize.height - 20);
-        }}
+        onScroll={onScroll}
         scrollEventThrottle={16}
       >
         <View style={styles.titleBlock}>
@@ -73,10 +94,10 @@ export default function W8BENScreen() {
         <Text style={[textStyles.bodyBase, { color: colors.contentPrimary }]}>
           Furthermore, I authorize this form to be provided to any withholding agent that has control, receipt, or custody of the income of which I am the beneficial owner or any withholding agent that can disburse or make payments of the income of which I am the beneficial owner. I agree that I will submit a new form within 30 days if any certification made on this form becomes incorrect.
         </Text>
-      </ScrollView>
+      </Animated.ScrollView>
 
       <StickyCTA atBottom={!hasOverflow || atBottom}>
-        <Button onPress={() => {}}>Agree and continue</Button>
+        <Button onPress={() => router.push('/agreements')}>Agree and continue</Button>
       </StickyCTA>
     </View>
   );
@@ -85,12 +106,6 @@ export default function W8BENScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  appbar: {
-    height: 56,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.sm,
   },
   titleBlock: {
     paddingBottom: spacing.lg,

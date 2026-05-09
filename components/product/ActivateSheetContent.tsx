@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/constants/theme';
 import { textStyles, spacing } from '@/constants/tokens';
 import { Button } from '@/components/ui/Button';
+import { StickyCTA } from '@/components/product/StickyCTA';
 
 interface ActivateSheetContentProps {
   onStart: () => void;
@@ -13,7 +13,6 @@ interface ActivateSheetContentProps {
 // Layout per Figma node 2588:152989: 24px top pad, illustration, title, body, primary CTA, home indicator slot.
 export function ActivateSheetContent({ onStart }: ActivateSheetContentProps) {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.wrap}>
@@ -35,9 +34,9 @@ export function ActivateSheetContent({ onStart }: ActivateSheetContentProps) {
         </Text>
       </View>
 
-      <View style={[styles.cta, { paddingBottom: 16 + 12 + insets.bottom }]}>
+      <StickyCTA floating>
         <Button onPress={onStart}>Start now</Button>
-      </View>
+      </StickyCTA>
     </View>
   );
 }
@@ -63,10 +62,5 @@ const styles = StyleSheet.create({
   },
   center: {
     textAlign: 'center',
-  },
-  cta: {
-    paddingTop: spacing.xxl,
-    paddingHorizontal: spacing.lg,
-    width: '100%',
   },
 });

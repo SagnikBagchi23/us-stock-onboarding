@@ -1,23 +1,36 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  interpolateColor,
+  type SharedValue,
+  type DerivedValue,
+} from 'react-native-reanimated';
 import { useTheme } from '@/constants/theme';
-import { textStyles } from '@/constants/tokens';
 import { IconButton } from './IconButton';
 
 interface AppBarProps {
-  title: string;
   onBack?: () => void;
+  scrolled?: SharedValue<number> | DerivedValue<number>;
 }
 
-// Plain (non-collapsing) app bar — placeholder screen.
-// Mirrors .appbar in reference/index.html:163-178.
-export function AppBar({ title, onBack }: AppBarProps) {
+// Simple scroll-aware app bar — back button only.
+// Pass `scrolled` (0→1) to animate background + hairline divider on scroll.
+export function AppBar({ onBack, scrolled }: AppBarProps) {
   const { colors } = useTheme();
+
+  const containerStyle = useAnimatedStyle(() => {
+    const v = scrolled?.value ?? 0;
+    return {
+      backgroundColor: interpolateColor(v, [0, 1], [colors.backgroundPrimary, colors.backgroundSurfaceDocked]),
+      borderBottomColor: interpolateColor(v, [0, 1], ['transparent', colors.borderPrimary]),
+    };
+  });
+
   return (
-    <View style={[styles.bar, { backgroundColor: colors.backgroundPrimary }]}>
+    <Animated.View style={[styles.bar, containerStyle]}>
       <IconButton name="arrowLeft" onPress={onBack} ariaLabel="Back" />
-      <Text style={[textStyles.headingBase, styles.title, { color: colors.contentPrimary }]}>{title}</Text>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -26,10 +39,7 @@ const styles = StyleSheet.create({
     height: 56,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
-  },
-  title: {
-    flex: 1,
     paddingHorizontal: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
 });

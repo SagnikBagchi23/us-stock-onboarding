@@ -1,12 +1,18 @@
-import React, { useRef, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import Animated, {
+  useAnimatedScrollHandler,
+  useDerivedValue,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/constants/theme';
-import { textStyles, spacing } from '@/constants/tokens';
+import { textStyles, spacing, easing, motion } from '@/constants/tokens';
 import { StatusBar } from '@/components/ui/StatusBar';
-import { IconButton } from '@/components/ui/IconButton';
+import { AppBar } from '@/components/ui/AppBar';
 import { SelectField } from '@/components/ui/SelectField';
 import { Button } from '@/components/ui/Button';
 import { StickyCTA } from '@/components/product/StickyCTA';
@@ -19,6 +25,8 @@ import {
   SOURCE_OF_FUNDS,
   PERSONAL_DETAILS_DEFAULTS as DEFAULTS,
 } from '@/data/personalDetails';
+
+const COLLAPSE_THRESHOLD = 40;
 
 type SheetKey =
   | 'employment'
@@ -42,31 +50,28 @@ export default function ActivateScreen() {
   const [sheet, setSheet] = useState<SheetKey>(null);
   const closeSheet = () => setSheet(null);
 
-  const [hasOverflow, setHasOverflow] = useState(false);
-  const [atBottom, setAtBottom] = useState(false);
-  const scrollViewHeight = useRef(0);
+  const scrollY = useSharedValue(0);
+  const scrolled = useDerivedValue<number>(() => {
+    const target = scrollY.value > COLLAPSE_THRESHOLD ? 1 : 0;
+    return withTiming(target, { duration: motion.appbarFade, easing: easing.out });
+  });
+
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: (e) => {
+      scrollY.value = e.contentOffset.y;
+    },
+  });
 
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>
-      <StatusBar />
+      <StatusBar scrolled={scrolled} />
+      <AppBar onBack={() => router.back()} scrolled={scrolled} />
 
-      <View style={styles.appbar}>
-        <IconButton name="arrowLeft" onPress={() => router.back()} ariaLabel="Back" />
-      </View>
-
-      <ScrollView
+      <Animated.ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        onLayout={({ nativeEvent: { layout } }) => {
-          scrollViewHeight.current = layout.height;
-        }}
-        onContentSizeChange={(_w, contentHeight) => {
-          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
-        }}
-        onScroll={({ nativeEvent: { contentOffset, layoutMeasurement, contentSize } }) => {
-          setAtBottom(contentOffset.y + layoutMeasurement.height >= contentSize.height - 20);
-        }}
+        onScroll={onScroll}
         scrollEventThrottle={16}
       >
         <View style={styles.titleBlock}>
@@ -106,9 +111,9 @@ export default function ActivateScreen() {
           onPress={() => setSheet('sourceOfFunds')}
           isOpen={sheet === 'sourceOfFunds'}
         />
-      </ScrollView>
+      </Animated.ScrollView>
 
-      <StickyCTA atBottom={!hasOverflow || atBottom}>
+      <StickyCTA floating>
         <Button onPress={() => router.push('/affiliation')}>Continue</Button>
       </StickyCTA>
 
@@ -160,19 +165,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  appbar: {
-    height: 56,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.sm,
-  },
   scrollContent: {
-    paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
     paddingBottom: spacing.lg,
     gap: spacing.xl,
   },
   titleBlock: {
+    paddingHorizontal: spacing.lg,
     paddingBottom: spacing.sm,
   },
 });

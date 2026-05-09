@@ -17,6 +17,8 @@ const CODEPOINTS = {
   informationCircle: 0xf1eba, // hgi-information-circle
   tick: 0xf2830,             // hgi-tick-01
   shieldCheck: 0xf2562,      // hgi-security-check
+  file: 0xf1c71,             // hgi-file-02
+  squareArrowUpRight: 0xf26ad, // hgi-square-arrow-up-right
 } as const;
 
 export type IconName = keyof typeof CODEPOINTS;
