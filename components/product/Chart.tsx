@@ -38,11 +38,12 @@ const CHART_HEIGHT = 340;
 interface ChartProps {
   initialPrice: number;
   activeTf: Timeframe;
+  positive: boolean;
   // Called whenever the live tick produces a new price (and after timeframe changes).
   onSeriesChange: (series: number[], tf: Timeframe) => void;
 }
 
-export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProps) {
+export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }: ChartProps) {
   const { colors } = useTheme();
 
   // ── JS-side state: the source-of-truth series for the active timeframe.
@@ -245,7 +246,7 @@ export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProp
           {size.w > 0 && (
             <Canvas style={{ width: size.w, height: scaledHeight }}>
               <Group transform={[{ scale }]}>
-                <Path path={skPath} style="stroke" strokeWidth={1.5} color={colors.contentPositive} strokeJoin="round" strokeCap="round" />
+                <Path path={skPath} style="stroke" strokeWidth={1.5} color={positive ? colors.contentPositive : colors.contentNegative} strokeJoin="round" strokeCap="round" />
               </Group>
             </Canvas>
           )}
@@ -287,8 +288,8 @@ export function StockChart({ initialPrice, activeTf, onSeriesChange }: ChartProp
             style={[
               styles.dot,
               {
-                backgroundColor: colors.contentPositive,
-                shadowColor: colors.contentPositive,
+                backgroundColor: positive ? colors.contentPositive : colors.contentNegative,
+                shadowColor: positive ? colors.contentPositive : colors.contentNegative,
               },
               lastPointStyle,
             ]}

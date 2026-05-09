@@ -56,7 +56,7 @@ export default function W8BENScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>
       <StatusBar scrolled={scrolled} />
-      <AppBar onBack={() => router.back()} scrolled={scrolled} />
+      <AppBar onBack={() => router.back()} scrolled={scrolled} title="W-8BEN Certification" />
 
       <Animated.ScrollView
         style={{ flex: 1 }}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   interpolateColor,
@@ -7,16 +7,18 @@ import Animated, {
   type DerivedValue,
 } from 'react-native-reanimated';
 import { useTheme } from '@/constants/theme';
+import { textStyles } from '@/constants/tokens';
 import { IconButton } from './IconButton';
 
 interface AppBarProps {
   onBack?: () => void;
   scrolled?: SharedValue<number> | DerivedValue<number>;
+  title?: string;
 }
 
 // Simple scroll-aware app bar — back button only.
 // Pass `scrolled` (0→1) to animate background + hairline divider on scroll.
-export function AppBar({ onBack, scrolled }: AppBarProps) {
+export function AppBar({ onBack, scrolled, title }: AppBarProps) {
   const { colors } = useTheme();
 
   const containerStyle = useAnimatedStyle(() => {
@@ -27,9 +29,18 @@ export function AppBar({ onBack, scrolled }: AppBarProps) {
     };
   });
 
+  const titleStyle = useAnimatedStyle(() => ({
+    opacity: scrolled?.value ?? 0,
+  }));
+
   return (
     <Animated.View style={[styles.bar, containerStyle]}>
       <IconButton name="arrowLeft" onPress={onBack} ariaLabel="Back" />
+      {title ? (
+        <Animated.Text style={[textStyles.bodyBaseHeavy, styles.title, { color: colors.contentPrimary }, titleStyle]}>
+          {title}
+        </Animated.Text>
+      ) : null}
     </Animated.View>
   );
 }
@@ -41,5 +52,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  title: {
+    flex: 1,
   },
 });

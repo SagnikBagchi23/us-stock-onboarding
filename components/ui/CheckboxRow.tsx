@@ -15,11 +15,8 @@ interface CheckboxRowProps {
   onToggle: () => void;
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 export function CheckboxRow({ label, checked, onToggle }: CheckboxRowProps) {
   const { colors } = useTheme();
-  const rowScale = useSharedValue(1);
   const checkScale = useSharedValue(checked ? 1 : 0);
   const checkOpacity = useSharedValue(checked ? 1 : 0);
 
@@ -33,25 +30,15 @@ export function CheckboxRow({ label, checked, onToggle }: CheckboxRowProps) {
     }
   }, [checked]);
 
-  const rowStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: rowScale.value }],
-  }));
-
   const checkmarkStyle = useAnimatedStyle(() => ({
     transform: [{ scale: checkScale.value }],
     opacity: checkOpacity.value,
   }));
 
   return (
-    <AnimatedPressable
-      onPressIn={() => {
-        rowScale.value = withTiming(0.99, { duration: 100, easing: easing.out });
-      }}
-      onPressOut={() => {
-        rowScale.value = withTiming(1, { duration: 100, easing: easing.out });
-      }}
+    <Pressable
       onPress={onToggle}
-      style={[styles.row, rowStyle]}
+      style={styles.row}
       accessibilityRole="checkbox"
       accessibilityState={{ checked }}
       accessibilityLabel={label}
@@ -72,7 +59,7 @@ export function CheckboxRow({ label, checked, onToggle }: CheckboxRowProps) {
       <Text style={[textStyles.bodyBase, styles.label, { color: colors.contentPrimary }]}>
         {label}
       </Text>
-    </AnimatedPressable>
+    </Pressable>
   );
 }
 

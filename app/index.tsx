@@ -120,6 +120,7 @@ export default function ProductScreen() {
         <StockChart
           initialPrice={GOOG.initialPrice}
           activeTf={activeTf}
+          positive={positive}
           onSeriesChange={handleSeriesChange}
         />
 

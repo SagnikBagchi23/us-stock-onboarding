@@ -37,7 +37,7 @@ export default function AgreementsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const [checked, setChecked] = useState<boolean[]>(AGREEMENTS.map(() => false));
+  const [checked, setChecked] = useState<boolean[]>(AGREEMENTS.map(() => true));
   const allChecked = checked.every(Boolean);
 
   const [hasOverflow, setHasOverflow] = useState(false);
@@ -116,8 +116,8 @@ export default function AgreementsScreen() {
         </View>
       </Animated.ScrollView>
 
-      <StickyCTA atBottom={!hasOverflow || atBottom}>
-        <Button disabled={!allChecked} onPress={() => {}}>Agree and continue</Button>
+      <StickyCTA floating>
+        <Button onPress={() => {}}>Agree and continue</Button>
       </StickyCTA>
     </View>
   );

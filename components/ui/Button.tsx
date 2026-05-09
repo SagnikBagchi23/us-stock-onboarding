@@ -6,9 +6,11 @@ import { useTheme } from '@/constants/theme';
 import { textStyles, radius, motion, easing } from '@/constants/tokens';
 
 type Variant = 'primary' | 'secondary' | 'ghost';
+type Size = 'large' | 'medium';
 
 interface ButtonProps {
   variant?: Variant;
+  size?: Size;
   onPress?: (e: GestureResponderEvent) => void;
   children: React.ReactNode;
   style?: ViewStyle;
@@ -18,7 +20,7 @@ interface ButtonProps {
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 // Mirrors .btn / .btn--{primary,secondary,ghost} from reference/index.html:181-202.
-export function Button({ variant = 'primary', onPress, children, style, disabled }: ButtonProps) {
+export function Button({ variant = 'primary', size = 'large', onPress, children, style, disabled }: ButtonProps) {
   const { colors } = useTheme();
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
@@ -58,7 +60,7 @@ export function Button({ variant = 'primary', onPress, children, style, disabled
       }}
       onPress={onPress}
       disabled={disabled}
-      style={[styles.btn, { backgroundColor: bg }, style, animatedStyle]}
+      style={[styles.btn, { backgroundColor: bg, height: size === 'medium' ? 40 : 48 }, style, animatedStyle]}
     >
       <Text style={[styles.label, { color: fg }]}>{children}</Text>
     </AnimatedPressable>

@@ -35,7 +35,7 @@ export function ActivateSheetContent({ onStart }: ActivateSheetContentProps) {
       </View>
 
       <StickyCTA floating>
-        <Button onPress={onStart}>Start now</Button>
+        <Button size="medium" onPress={onStart}>Start now</Button>
       </StickyCTA>
     </View>
   );
