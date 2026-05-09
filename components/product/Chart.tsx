@@ -260,7 +260,6 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
             <Text style={[textStyles.bodyXSmallHeavy, { color: colors.contentTertiary }]}>{tooltipText.time}</Text>
           </Animated.View>
 
-        </View>
       </View>
 
       {/* Expand button (decorative — no-op in HTML reference) */}
