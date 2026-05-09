@@ -9,6 +9,7 @@ import { StatusBar } from '@/components/ui/StatusBar';
 import { IconButton } from '@/components/ui/IconButton';
 import { CheckboxRow } from '@/components/ui/CheckboxRow';
 import { Button } from '@/components/ui/Button';
+import { StickyCTA } from '@/components/product/StickyCTA';
 import { AFFILIATION_OPTIONS } from '@/data/personalDetails';
 
 export default function AffiliationScreen() {
@@ -45,7 +46,7 @@ export default function AffiliationScreen() {
 
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: 28 + insets.bottom }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: spacing.xl }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.titleBlock}>
@@ -64,13 +65,13 @@ export default function AffiliationScreen() {
             />
           ))}
         </View>
-
-        <View style={styles.cta}>
-          <Button disabled={selected.size === 0} onPress={() => router.push('/w8ben')}>
-            Continue
-          </Button>
-        </View>
       </ScrollView>
+
+      <StickyCTA floating>
+        <Button disabled={selected.size === 0} onPress={() => router.push('/w8ben')}>
+          Continue
+        </Button>
+      </StickyCTA>
     </View>
   );
 }
@@ -95,9 +96,5 @@ const styles = StyleSheet.create({
   optionsList: {
     gap: spacing.xxl,
     paddingTop: spacing.sm,
-  },
-  cta: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
   },
 });
