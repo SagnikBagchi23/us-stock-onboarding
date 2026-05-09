@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,7 +22,10 @@ export default function W8BENScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  const [hasOverflow, setHasOverflow] = useState(false);
   const [atBottom, setAtBottom] = useState(false);
+  const scrollViewHeight = useRef(0);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>
@@ -36,6 +39,12 @@ export default function W8BENScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        onLayout={({ nativeEvent: { layout } }) => {
+          scrollViewHeight.current = layout.height;
+        }}
+        onContentSizeChange={(_w, contentHeight) => {
+          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+        }}
         onScroll={({ nativeEvent: { contentOffset, layoutMeasurement, contentSize } }) => {
           setAtBottom(contentOffset.y + layoutMeasurement.height >= contentSize.height - 20);
         }}
@@ -66,7 +75,7 @@ export default function W8BENScreen() {
         </Text>
       </ScrollView>
 
-      <StickyCTA atBottom={atBottom}>
+      <StickyCTA atBottom={!hasOverflow || atBottom}>
         <Button onPress={() => {}}>Agree and continue</Button>
       </StickyCTA>
     </View>

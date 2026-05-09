@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -41,33 +41,41 @@ export default function ActivateScreen() {
 
   const [sheet, setSheet] = useState<SheetKey>(null);
   const closeSheet = () => setSheet(null);
+
+  const [hasOverflow, setHasOverflow] = useState(false);
   const [atBottom, setAtBottom] = useState(false);
+  const scrollViewHeight = useRef(0);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>
       <StatusBar />
 
-      {/* App bar: back button + page title block */}
       <View style={styles.appbar}>
         <IconButton name="arrowLeft" onPress={() => router.back()} ariaLabel="Back" />
       </View>
 
-      <View style={styles.titleBlock}>
-        <Text style={[textStyles.headingLarge, { color: colors.contentPrimary }]}>Personal details</Text>
-        <Text style={[textStyles.bodyBase, { color: colors.contentSecondary, marginTop: 2 }]}>
-          Ensure your details are up to date
-        </Text>
-      </View>
-
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingTop: spacing.lg, paddingBottom: spacing.lg, gap: spacing.xl }}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        onLayout={({ nativeEvent: { layout } }) => {
+          scrollViewHeight.current = layout.height;
+        }}
+        onContentSizeChange={(_w, contentHeight) => {
+          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+        }}
         onScroll={({ nativeEvent: { contentOffset, layoutMeasurement, contentSize } }) => {
           setAtBottom(contentOffset.y + layoutMeasurement.height >= contentSize.height - 20);
         }}
         scrollEventThrottle={16}
       >
+        <View style={styles.titleBlock}>
+          <Text style={[textStyles.headingLarge, { color: colors.contentPrimary }]}>Personal details</Text>
+          <Text style={[textStyles.bodyBase, { color: colors.contentSecondary, marginTop: 2 }]}>
+            Ensure your details are up to date
+          </Text>
+        </View>
+
         <SelectField
           label="Employment status"
           value={employment}
@@ -100,11 +108,10 @@ export default function ActivateScreen() {
         />
       </ScrollView>
 
-      <StickyCTA atBottom={atBottom}>
+      <StickyCTA atBottom={!hasOverflow || atBottom}>
         <Button onPress={() => router.push('/affiliation')}>Continue</Button>
       </StickyCTA>
 
-      {/* Selector sheets — only one mounted at a time via the `sheet` discriminator */}
       <SelectorSheet
         visible={sheet === 'employment'}
         onClose={closeSheet}
@@ -159,9 +166,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing.sm,
   },
-  titleBlock: {
+  scrollContent: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
     paddingBottom: spacing.lg,
+    gap: spacing.xl,
+  },
+  titleBlock: {
+    paddingBottom: spacing.sm,
   },
 });
