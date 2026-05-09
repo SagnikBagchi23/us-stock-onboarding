@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react';
-import { View, Text, StyleSheet, Platform, type LayoutChangeEvent } from 'react-native';
-import { ensureSkiaLoaded } from '@/utils/skia';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { View, Text, StyleSheet, type LayoutChangeEvent } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 import Animated, {
   useSharedValue,
@@ -32,19 +31,9 @@ import {
 } from '@/utils/chart';
 import { fmtUsd, scrubTooltip } from '@/utils/format';
 import { IconButton } from '@/components/ui/IconButton';
-import { LiveDot } from '@/components/ui/LiveDot';
+import SvgCanvas from './SvgCanvas';
 
 const CHART_HEIGHT = 340;
-
-// Lazy-load the Skia canvas: on web, dynamically import only AFTER the WASM
-// has finished loading, so the Skia.* namespace is fully initialized before
-// any module-level references to it are evaluated.
-const LazySkiaCanvas = React.lazy(async () => {
-  if (Platform.OS === 'web') {
-    await ensureSkiaLoaded();
-  }
-  return import('./SkiaCanvas');
-});
 
 interface ChartProps {
   initialPrice: number;
@@ -103,16 +92,6 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
   // Scale factor from viewBox coords → screen px
   const scale = size.w > 0 ? size.w / CHART_VIEWBOX_W : 1;
   const scaledHeight = CHART_VIEWBOX_H * scale;
-
-  // ── Last-point indicator (dot + horizontal line) — driven by current geometry
-  const lastPointStyle = useAnimatedStyle(() => {
-    const idx = scrubActive.value === 1 ? scrubIdx.value : MORPH_N - 1;
-    const pt = currentPoints.value[idx];
-    return {
-      left: pt.x * scale - 10,
-      top: pt.y * scale - 10,
-    };
-  });
 
   const horizontalLineStyle = useAnimatedStyle(() => {
     const last = currentPoints.value[MORPH_N - 1];
@@ -238,22 +217,22 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
       <GestureDetector gesture={pan}>
         <View style={StyleSheet.absoluteFill}>
           {size.w > 0 && (
-            <Suspense fallback={null}>
-              <LazySkiaCanvas
-                currentPoints={currentPoints}
-                scale={scale}
-                scaledHeight={scaledHeight}
-                positive={positive}
-                colors={colors}
-              />
-            </Suspense>
+            <SvgCanvas
+              currentPoints={currentPoints}
+              scale={scale}
+              scaledHeight={scaledHeight}
+              positive={positive}
+              colors={colors}
+            />
           )}
 
-          {/* Horizontal LTP line */}
+          {/* Horizontal LTP line — 1D only */}
+          {activeTf === '1D' && (
           <Animated.View
             pointerEvents="none"
             style={[styles.hline, { borderTopColor: colors.chartGrid }, horizontalLineStyle]}
           />
+          )}
 
           {/* Vertical scrub line */}
           <Animated.View
@@ -280,10 +259,6 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
             <Text style={[textStyles.bodyXSmallHeavy, { color: colors.contentTertiary }]}>{tooltipText.time}</Text>
           </Animated.View>
 
-          {/* Last-point live indicator (pulsating) */}
-          <Animated.View pointerEvents="none" style={[styles.liveDot, lastPointStyle]}>
-            <LiveDot color={positive ? colors.contentPositive : colors.contentNegative} size={20} innerSize={8} />
-          </Animated.View>
         </View>
       </GestureDetector>
 
@@ -335,11 +310,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     gap: 4,
-  },
-  liveDot: {
-    position: 'absolute',
-    width: 20,
-    height: 20,
   },
   expand: {
     position: 'absolute',

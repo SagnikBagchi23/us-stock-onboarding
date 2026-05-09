@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, View, StyleSheet } from 'react-native';
+import { Platform, View, StyleSheet, useWindowDimensions } from 'react-native';
 
 // iPhone 17 (2025) — 402×874 logical pixels, Dynamic Island.
 const PHONE_W = 402;
@@ -13,9 +13,11 @@ interface PhoneFrameProps {
   children: React.ReactNode;
 }
 
-// Renders a device chrome around the app on web; passes through on native.
+// Renders a device chrome around the app on web; passes through on native and mobile viewports.
 export function PhoneFrame({ children }: PhoneFrameProps) {
-  if (Platform.OS !== 'web') return <>{children}</>;
+  const { width } = useWindowDimensions();
+
+  if (Platform.OS !== 'web' || width < 600) return <>{children}</>;
 
   return (
     <View style={styles.stage}>
