@@ -100,7 +100,7 @@ export default function AgreementsScreen() {
       </Animated.ScrollView>
 
       <StickyCTA floating>
-        <Button onPress={() => router.push('/complete')}>Agree and continue</Button>
+        <Button onPress={() => router.push('/complete')} disabled={!checked.every(Boolean)}>Agree and continue</Button>
       </StickyCTA>
     </View>
   );
