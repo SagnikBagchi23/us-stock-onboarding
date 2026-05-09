@@ -82,7 +82,7 @@ export function CheckboxRow({ label, checked, onToggle }: CheckboxRowProps) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    gap: spacing.md,
     alignItems: 'flex-start',
     paddingHorizontal: spacing.lg,
   },

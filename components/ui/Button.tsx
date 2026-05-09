@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet, type ViewStyle, type GestureResponderEvent } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/constants/theme';
 import { textStyles, radius, motion, easing } from '@/constants/tokens';
 
@@ -47,11 +48,12 @@ export function Button({ variant = 'primary', onPress, children, style, disabled
   return (
     <AnimatedPressable
       onPressIn={() => {
+        if (!disabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         scale.value = withTiming(0.97, { duration: motion.press, easing: easing.out });
         opacity.value = withTiming(0.92, { duration: motion.press, easing: easing.out });
       }}
       onPressOut={() => {
-        scale.value = withTiming(1, { duration: motion.press, easing: easing.out });
+        scale.value = withSpring(1, { duration: 400, dampingRatio: 0.5 });
         opacity.value = withTiming(1, { duration: motion.press, easing: easing.out });
       }}
       onPress={onPress}

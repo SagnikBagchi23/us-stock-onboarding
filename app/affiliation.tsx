@@ -9,7 +9,6 @@ import { StatusBar } from '@/components/ui/StatusBar';
 import { IconButton } from '@/components/ui/IconButton';
 import { CheckboxRow } from '@/components/ui/CheckboxRow';
 import { Button } from '@/components/ui/Button';
-import { Icon } from '@/components/ui/Icon';
 import { AFFILIATION_OPTIONS } from '@/data/personalDetails';
 
 export default function AffiliationScreen() {
@@ -19,12 +18,17 @@ export default function AffiliationScreen() {
 
   const [selected, setSelected] = useState<Set<number>>(new Set());
 
+  const NONE_INDEX = AFFILIATION_OPTIONS.length - 1;
+
   function toggleOption(index: number) {
     setSelected(prev => {
       const next = new Set(prev);
       if (next.has(index)) {
         next.delete(index);
+      } else if (index === NONE_INDEX) {
+        return new Set([NONE_INDEX]);
       } else {
+        next.delete(NONE_INDEX);
         next.add(index);
       }
       return next;
@@ -71,14 +75,6 @@ export default function AffiliationScreen() {
           },
         ]}
       >
-        <View style={styles.badge}>
-          <View style={[styles.badgeLine, { backgroundColor: colors.borderPrimary }]} />
-          <Icon name="shieldCheck" size={16} color={colors.contentTertiary} />
-          <View style={[styles.badgeLine, { backgroundColor: colors.borderPrimary }]} />
-        </View>
-        <Text style={[textStyles.bodySmall, styles.badgeText, { color: colors.contentTertiary }]}>
-          {'Your information is secure and will solely be\nutilised for verification purposes'}
-        </Text>
         <Button disabled={selected.size === 0} onPress={() => {}}>
           Continue
         </Button>
@@ -109,20 +105,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
   },
   docked: {
-    paddingTop: spacing.md,
+    paddingTop: spacing.lg,
     paddingHorizontal: spacing.lg,
-    gap: spacing.sm,
-  },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  badgeLine: {
-    flex: 1,
-    height: StyleSheet.hairlineWidth,
-  },
-  badgeText: {
-    textAlign: 'center',
   },
 });
