@@ -1,4 +1,4 @@
-import { Easing } from 'react-native-reanimated';
+import { Easing } from 'react-native';
 
 // ─── Mint DS — Groww Invest dark tokens (lifted from reference/index.html:69-104)
 export const dark = {
