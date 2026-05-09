@@ -31,18 +31,18 @@ export default function W8BENScreen() {
         <IconButton name="arrowLeft" onPress={() => router.back()} ariaLabel="Back" />
       </View>
 
-      <View style={styles.titleBlock}>
-        <Text style={[textStyles.headingLarge, { color: colors.contentPrimary }]}>W-8BEN Certification</Text>
-        <Text style={[textStyles.bodyBase, { color: colors.contentSecondary, marginTop: 2 }]}>
-          This ensures you get the benefits of the India-US tax treaty
-        </Text>
-      </View>
-
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        <View style={styles.titleBlock}>
+          <Text style={[textStyles.headingLarge, { color: colors.contentPrimary }]}>W-8BEN Certification</Text>
+          <Text style={[textStyles.bodyBase, { color: colors.contentSecondary, marginTop: 2 }]}>
+            This ensures you get the benefits of the India-US tax treaty
+          </Text>
+        </View>
+
         <Text style={[textStyles.bodyBase, { color: colors.contentPrimary }]}>
           Under penalties of perjury, I declare that I have examined the information on this form and to the best of my knowledge and belief it is true, correct, and complete. I further certify under penalties of perjury that:
         </Text>
@@ -61,7 +61,7 @@ export default function W8BENScreen() {
         </Text>
       </ScrollView>
 
-      <StickyCTA>
+      <StickyCTA floating>
         <Button onPress={() => {}}>Agree and continue</Button>
       </StickyCTA>
     </View>
@@ -79,12 +79,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
   },
   titleBlock: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
     paddingBottom: spacing.lg,
   },
   scrollContent: {
     paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
     paddingBottom: spacing.xl,
     gap: spacing.md,
   },
