@@ -67,26 +67,31 @@ export default function ActivateScreen() {
           label="Employment status"
           value={employment}
           onPress={() => setSheet('employment')}
+          isOpen={sheet === 'employment'}
         />
         <SelectField
           label="Annual income"
           value={annualIncome}
           onPress={() => setSheet('annualIncome')}
+          isOpen={sheet === 'annualIncome'}
         />
         <SelectField
           label="Total net worth"
           value={totalNetWorth}
           onPress={() => setSheet('totalNetWorth')}
+          isOpen={sheet === 'totalNetWorth'}
         />
         <SelectField
           label="Liquid net worth"
           value={liquidNetWorth}
           onPress={() => setSheet('liquidNetWorth')}
+          isOpen={sheet === 'liquidNetWorth'}
         />
         <SelectField
           label="Primary source of funds"
           value={sourceOfFunds}
           onPress={() => setSheet('sourceOfFunds')}
+          isOpen={sheet === 'sourceOfFunds'}
         />
       </ScrollView>
 

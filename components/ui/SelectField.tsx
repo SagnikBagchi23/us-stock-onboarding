@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pressable, View, Text, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '@/constants/theme';
@@ -10,16 +10,26 @@ interface SelectFieldProps {
   value: string;
   placeholder?: string;
   onPress: () => void;
+  isOpen?: boolean;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 // Bordered tap-target with a label above and a chevron-down on the right.
 // Mirrors mds-input-textfield/default in select mode (Figma 2590:180519).
-export function SelectField({ label, value, placeholder, onPress }: SelectFieldProps) {
+export function SelectField({ label, value, placeholder, onPress, isOpen = false }: SelectFieldProps) {
   const { colors } = useTheme();
   const scale = useSharedValue(1);
+  const chevronRotation = useSharedValue(0);
+
+  useEffect(() => {
+    chevronRotation.value = withTiming(isOpen ? 180 : 0, { duration: 200, easing: easing.out });
+  }, [isOpen]);
+
   const aStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const chevronStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${chevronRotation.value}deg` }],
+  }));
 
   const showPlaceholder = !value;
 
@@ -57,7 +67,9 @@ export function SelectField({ label, value, placeholder, onPress }: SelectFieldP
           {value || placeholder}
         </Text>
         <View style={styles.chevronSlot}>
-          <Icon name="arrowDown" size={24} color={colors.contentSecondary} />
+          <Animated.View style={chevronStyle}>
+            <Icon name="arrowDown" size={24} color={colors.contentSecondary} />
+          </Animated.View>
         </View>
       </AnimatedPressable>
     </View>
