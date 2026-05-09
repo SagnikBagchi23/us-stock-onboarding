@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, type LayoutChangeEvent } from 'react-native';
-import { Canvas, Path, Group, Skia, type SkPath } from '@shopify/react-native-skia';
-import { useSkiaReady } from '@/utils/skia';
+import React, { useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react';
+import { View, Text, StyleSheet, Platform, type LayoutChangeEvent } from 'react-native';
+import { ensureSkiaLoaded } from '@/utils/skia';
 import type { SharedValue } from 'react-native-reanimated';
 import Animated, {
   useSharedValue,
@@ -33,41 +32,19 @@ import {
 } from '@/utils/chart';
 import { fmtUsd, scrubTooltip } from '@/utils/format';
 import { IconButton } from '@/components/ui/IconButton';
+import { LiveDot } from '@/components/ui/LiveDot';
 
 const CHART_HEIGHT = 340;
 
-interface SkiaCanvasProps {
-  currentPoints: SharedValue<ChartPoint[]>;
-  scale: number;
-  scaledHeight: number;
-  positive: boolean;
-  colors: { contentPositive: string; contentNegative: string };
-}
-
-// Isolated so Skia.Path.Make() worklet never runs before CanvasKit WASM is ready.
-function SkiaCanvas({ currentPoints, scale, scaledHeight, positive, colors }: SkiaCanvasProps) {
-  const skPath = useDerivedValue<SkPath>(() => {
-    const pts = currentPoints.value;
-    const p = Skia.Path.Make();
-    p.moveTo(pts[0].x, pts[0].y);
-    for (let i = 1; i < pts.length; i++) p.lineTo(pts[i].x, pts[i].y);
-    return p;
-  });
-  return (
-    <Canvas style={{ width: scale * CHART_VIEWBOX_W, height: scaledHeight }}>
-      <Group transform={[{ scale }]}>
-        <Path
-          path={skPath}
-          style="stroke"
-          strokeWidth={1.5}
-          color={positive ? colors.contentPositive : colors.contentNegative}
-          strokeJoin="round"
-          strokeCap="round"
-        />
-      </Group>
-    </Canvas>
-  );
-}
+// Lazy-load the Skia canvas: on web, dynamically import only AFTER the WASM
+// has finished loading, so the Skia.* namespace is fully initialized before
+// any module-level references to it are evaluated.
+const LazySkiaCanvas = React.lazy(async () => {
+  if (Platform.OS === 'web') {
+    await ensureSkiaLoaded();
+  }
+  return import('./SkiaCanvas');
+});
 
 interface ChartProps {
   initialPrice: number;
@@ -79,8 +56,6 @@ interface ChartProps {
 
 export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }: ChartProps) {
   const { colors } = useTheme();
-
-  const canvasReady = useSkiaReady();
 
   // ── JS-side state: the source-of-truth series for the active timeframe.
   const seriesRef = useRef<number[]>(generateSeries(activeTf, initialPrice, hashTf(activeTf)));
@@ -134,8 +109,8 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
     const idx = scrubActive.value === 1 ? scrubIdx.value : MORPH_N - 1;
     const pt = currentPoints.value[idx];
     return {
-      left: pt.x * scale - 6,
-      top: pt.y * scale - 6,
+      left: pt.x * scale - 10,
+      top: pt.y * scale - 10,
     };
   });
 
@@ -262,14 +237,16 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
     <View style={[styles.chart, { height: CHART_HEIGHT }]} onLayout={onLayout}>
       <GestureDetector gesture={pan}>
         <View style={StyleSheet.absoluteFill}>
-          {size.w > 0 && canvasReady && (
-            <SkiaCanvas
-              currentPoints={currentPoints}
-              scale={scale}
-              scaledHeight={scaledHeight}
-              positive={positive}
-              colors={colors}
-            />
+          {size.w > 0 && (
+            <Suspense fallback={null}>
+              <LazySkiaCanvas
+                currentPoints={currentPoints}
+                scale={scale}
+                scaledHeight={scaledHeight}
+                positive={positive}
+                colors={colors}
+              />
+            </Suspense>
           )}
 
           {/* Horizontal LTP line */}
@@ -303,18 +280,10 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
             <Text style={[textStyles.bodyXSmallHeavy, { color: colors.contentTertiary }]}>{tooltipText.time}</Text>
           </Animated.View>
 
-          {/* Last-point dot */}
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.dot,
-              {
-                backgroundColor: positive ? colors.contentPositive : colors.contentNegative,
-                shadowColor: positive ? colors.contentPositive : colors.contentNegative,
-              },
-              lastPointStyle,
-            ]}
-          />
+          {/* Last-point live indicator (pulsating) */}
+          <Animated.View pointerEvents="none" style={[styles.liveDot, lastPointStyle]}>
+            <LiveDot color={positive ? colors.contentPositive : colors.contentNegative} size={20} innerSize={8} />
+          </Animated.View>
         </View>
       </GestureDetector>
 
@@ -367,15 +336,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 4,
   },
-  dot: {
+  liveDot: {
     position: 'absolute',
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    // Halo via elevation/shadow — RN doesn't render box-shadow with spread directly.
-    shadowOpacity: 0.18,
-    shadowRadius: 4,
-    elevation: 4,
+    width: 20,
+    height: 20,
   },
   expand: {
     position: 'absolute',

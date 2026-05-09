@@ -9,7 +9,10 @@ export function ensureSkiaLoaded(): Promise<boolean> {
     skiaPromise = import('@shopify/react-native-skia/lib/module/web')
       .then(({ LoadSkiaWeb }) => LoadSkiaWeb({ locateFile: (file: string) => `/${file}` }))
       .then(() => true)
-      .catch(() => false);
+      .catch((err) => {
+        console.error('[skia] LoadSkiaWeb failed:', err);
+        return false;
+      });
   }
   return skiaPromise;
 }
