@@ -1,10 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated, {
   useAnimatedScrollHandler,
   useDerivedValue,
   useSharedValue,
   withTiming,
+  runOnJS,
 } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,6 +39,10 @@ export default function ProductScreen() {
   const [activeTf, setActiveTf] = useState<Timeframe>('1D');
   const [sheetOpen, setSheetOpen] = useState(false);
 
+  const [hasOverflow, setHasOverflow] = useState(false);
+  const [atBottom, setAtBottom] = useState(false);
+  const scrollViewHeight = useRef(0);
+
   // Series state lifted here so header + holdings card stay in sync with the chart.
   const [series, setSeries] = useState<number[]>(() =>
     generateSeries('1D', GOOG.initialPrice, hashTf('1D')),
@@ -70,8 +75,13 @@ export default function ProductScreen() {
   const onScroll = useAnimatedScrollHandler({
     onScroll: (e) => {
       scrollY.value = e.contentOffset.y;
+      runOnJS(checkBottom)(e.contentOffset.y, e.layoutMeasurement.height, e.contentSize.height);
     },
   });
+
+  const checkBottom = useCallback((offset: number, viewport: number, content: number) => {
+    setAtBottom(offset + viewport >= content - 20);
+  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>
@@ -91,6 +101,12 @@ export default function ProductScreen() {
         onScroll={onScroll}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
+        onLayout={({ nativeEvent: { layout } }) => {
+          scrollViewHeight.current = layout.height;
+        }}
+        onContentSizeChange={(_w, contentHeight) => {
+          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+        }}
       >
         <StockHeader
           ticker={GOOG.ticker}
@@ -134,7 +150,7 @@ export default function ProductScreen() {
         <View style={{ height: 8 }} />
       </Animated.ScrollView>
 
-      <StickyCTA>
+      <StickyCTA atBottom={!hasOverflow || atBottom}>
         <Button onPress={() => setSheetOpen(true)}>Activate US Stocks</Button>
       </StickyCTA>
 
