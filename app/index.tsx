@@ -33,7 +33,7 @@ const COLLAPSE_THRESHOLD = 80;
 
 export default function ProductScreen() {
   const { colors } = useTheme();
-  const router = useRouter();
+  const { back, push } = useRouter();
   const insets = useSafeAreaInsets();
 
   const [activeTf, setActiveTf] = useState<Timeframe>('1D');
@@ -42,6 +42,7 @@ export default function ProductScreen() {
   const [hasOverflow, setHasOverflow] = useState(false);
   const [atBottom, setAtBottom] = useState(false);
   const scrollViewHeight = useRef(0);
+  const scrollContentHeight = useRef(0);
 
   // Series state lifted here so header + holdings card stay in sync with the chart.
   const [series, setSeries] = useState<number[]>(() =>
@@ -89,7 +90,7 @@ export default function ProductScreen() {
         price={priceStr}
         change={changeStr}
         changePositive={positive}
-        onLeadingPress={() => router.back()}
+        onLeadingPress={back}
       />
 
       <Animated.ScrollView
@@ -99,9 +100,13 @@ export default function ProductScreen() {
         showsVerticalScrollIndicator={false}
         onLayout={({ nativeEvent: { layout } }) => {
           scrollViewHeight.current = layout.height;
+          setHasOverflow(scrollContentHeight.current > layout.height + 1);
         }}
         onContentSizeChange={(_w, contentHeight) => {
-          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+          scrollContentHeight.current = contentHeight;
+          if (scrollViewHeight.current > 0) {
+            setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+          }
         }}
       >
         <StockHeader
@@ -159,7 +164,7 @@ export default function ProductScreen() {
         <ActivateSheetContent
           onStart={() => {
             setSheetOpen(false);
-            router.push('/activate');
+            push('/activate');
           }}
         />
       </BottomSheet>

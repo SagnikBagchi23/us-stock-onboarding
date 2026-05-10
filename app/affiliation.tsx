@@ -14,7 +14,7 @@ import { AFFILIATION_OPTIONS } from '@/data/personalDetails';
 
 export default function AffiliationScreen() {
   const { colors } = useTheme();
-  const router = useRouter();
+  const { back, push } = useRouter();
   const insets = useSafeAreaInsets();
 
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -22,6 +22,7 @@ export default function AffiliationScreen() {
   const [hasOverflow, setHasOverflow] = useState(false);
   const [atBottom, setAtBottom] = useState(false);
   const scrollViewHeight = useRef(0);
+  const scrollContentHeight = useRef(0);
 
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { contentOffset, layoutMeasurement, contentSize } = e.nativeEvent;
@@ -50,7 +51,7 @@ export default function AffiliationScreen() {
       <StatusBar />
 
       <View style={styles.appbar}>
-        <IconButton name="arrowLeft" onPress={() => router.back()} ariaLabel="Back" />
+        <IconButton name="arrowLeft" onPress={back} ariaLabel="Back" />
       </View>
 
       <ScrollView
@@ -59,9 +60,13 @@ export default function AffiliationScreen() {
         showsVerticalScrollIndicator={false}
         onLayout={({ nativeEvent: { layout } }) => {
           scrollViewHeight.current = layout.height;
+          setHasOverflow(scrollContentHeight.current > layout.height + 1);
         }}
         onContentSizeChange={(_w, contentHeight) => {
-          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+          scrollContentHeight.current = contentHeight;
+          if (scrollViewHeight.current > 0) {
+            setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+          }
         }}
         onScroll={onScroll}
         scrollEventThrottle={16}
@@ -75,7 +80,7 @@ export default function AffiliationScreen() {
         <View style={styles.optionsList}>
           {AFFILIATION_OPTIONS.map((option, i) => (
             <CheckboxRow
-              key={i}
+              key={option}
               label={option}
               checked={selected.has(i)}
               onToggle={() => toggleOption(i)}
@@ -86,7 +91,7 @@ export default function AffiliationScreen() {
       </ScrollView>
 
       <StickyCTA atBottom={!hasOverflow || atBottom}>
-        <Button disabled={selected.size === 0} onPress={() => router.push('/w8ben')}>
+        <Button disabled={selected.size === 0} onPress={() => push('/w8ben')}>
           Continue
         </Button>
       </StickyCTA>

@@ -29,12 +29,13 @@ const BULLET_ITEMS = [
 
 export default function W8BENScreen() {
   const { colors } = useTheme();
-  const router = useRouter();
+  const { back, push } = useRouter();
   const insets = useSafeAreaInsets();
 
   const [hasOverflow, setHasOverflow] = useState(false);
   const [atBottom, setAtBottom] = useState(false);
   const scrollViewHeight = useRef(0);
+  const scrollContentHeight = useRef(0);
 
   const scrollY = useSharedValue(0);
   const scrolled = useDerivedValue<number>(() => {
@@ -52,7 +53,7 @@ export default function W8BENScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>
       <StatusBar scrolled={scrolled} />
-      <AppBar onBack={() => router.back()} scrolled={scrolled} title="W-8BEN Certification" />
+      <AppBar onBack={back} scrolled={scrolled} title="W-8BEN Certification" />
 
       <Animated.ScrollView
         style={{ flex: 1 }}
@@ -60,9 +61,13 @@ export default function W8BENScreen() {
         showsVerticalScrollIndicator={false}
         onLayout={({ nativeEvent: { layout } }) => {
           scrollViewHeight.current = layout.height;
+          setHasOverflow(scrollContentHeight.current > layout.height + 1);
         }}
         onContentSizeChange={(_w, contentHeight) => {
-          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+          scrollContentHeight.current = contentHeight;
+          if (scrollViewHeight.current > 0) {
+            setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+          }
         }}
         onScroll={onScroll}
         scrollEventThrottle={16}
@@ -80,7 +85,7 @@ export default function W8BENScreen() {
 
         <View style={styles.bulletList}>
           {BULLET_ITEMS.map((item, i) => (
-            <View key={i} style={styles.bulletRow}>
+            <View key={item} style={styles.bulletRow}>
               <Text style={[styles.bullet, { color: colors.contentPrimary }]}>{'•'}</Text>
               <Text style={[textStyles.bodyBase, styles.bulletText, { color: colors.contentPrimary }]}>{item}</Text>
             </View>
@@ -93,7 +98,7 @@ export default function W8BENScreen() {
       </Animated.ScrollView>
 
       <StickyCTA atBottom={!hasOverflow || atBottom}>
-        <Button onPress={() => router.push('/agreements')}>Agree and continue</Button>
+        <Button onPress={() => push('/agreements')}>Agree and continue</Button>
       </StickyCTA>
     </View>
   );

@@ -57,7 +57,7 @@ export function PerformanceSection(props: PerformanceSectionProps) {
 
       <View style={styles.rows}>
         {rows.map((row, i) => (
-          <View key={i} style={styles.row}>
+          <View key={row.lowLabel} style={styles.row}>
             <View style={styles.head}>
               <View>
                 <Text style={[textStyles.bodySmall, { color: colors.contentSecondary }]}>{row.lowLabel}</Text>

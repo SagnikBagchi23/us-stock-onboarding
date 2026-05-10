@@ -9,7 +9,7 @@ import { Icon } from '@/components/ui/Icon';
 export default function CompleteScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const router = useRouter();
+  const { replace } = useRouter();
 
   return (
     <Pressable
@@ -17,7 +17,7 @@ export default function CompleteScreen() {
         styles.container,
         { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top, paddingBottom: insets.bottom },
       ]}
-      onPress={() => router.replace('/')}
+      onPress={() => replace('/')}
     >
       <View style={styles.lockup}>
         <View style={[styles.outerCircle, { backgroundColor: colors.backgroundPositiveSubtle }]}>

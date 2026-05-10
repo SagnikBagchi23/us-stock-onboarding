@@ -13,12 +13,9 @@ interface StickyCTAProps {
 export function StickyCTA({ children, floating = false, atBottom = false, noDivider = false, style }: StickyCTAProps) {
   const { colors } = useTheme();
 
-  // When content sits underneath the docked CTA (floating, or scrolled with overflow),
-  // surface it on backgroundSurfaceZ1 with a borderPrimary divider so the button is
-  // visually separated from the content. atBottom = page fully visible, no content
-  // underneath, so use the page background with no divider.
-  const bg = atBottom ? colors.backgroundPrimary : colors.backgroundSurfaceZ1;
-  const showDivider = !atBottom && !noDivider;
+  const hasElevation = !atBottom;
+  const bg = hasElevation ? colors.backgroundSurfaceZ1 : 'transparent';
+  const showDivider = hasElevation && !noDivider;
 
   return (
     <View

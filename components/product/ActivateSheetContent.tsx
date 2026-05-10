@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { useTheme } from '@/constants/theme';
 import { textStyles, spacing } from '@/constants/tokens';
 import { Button } from '@/components/ui/Button';
@@ -19,7 +20,7 @@ export function ActivateSheetContent({ onStart }: ActivateSheetContentProps) {
       <Image
         source={require('../../assets/intro-illo.png')}
         style={styles.illo}
-        resizeMode="contain"
+        contentFit="contain"
       />
 
       <View style={styles.copy}>

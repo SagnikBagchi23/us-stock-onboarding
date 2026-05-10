@@ -95,13 +95,13 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
 
   const horizontalLineStyle = useAnimatedStyle(() => {
     const last = currentPoints.value[MORPH_N - 1];
-    return { top: last.y * scale };
+    return { transform: [{ translateY: last.y * scale }] };
   });
 
   const verticalLineStyle = useAnimatedStyle(() => {
     const pt = currentPoints.value[scrubIdx.value];
     return {
-      left: pt.x * scale,
+      transform: [{ translateX: pt.x * scale }],
       opacity: scrubActive.value,
     };
   });
@@ -113,7 +113,7 @@ export function StockChart({ initialPrice, activeTf, positive, onSeriesChange }:
     if (left < 4) left = 4;
     if (w > 0 && left + w > size.w - 4) left = size.w - w - 4;
     return {
-      left,
+      transform: [{ translateX: left }],
       opacity: scrubActive.value,
     };
   });
@@ -301,6 +301,7 @@ const styles = StyleSheet.create({
   },
   hline: {
     position: 'absolute',
+    top: 0,
     left: 0,
     right: 0,
     borderTopWidth: 1,
@@ -310,11 +311,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     bottom: 0,
+    left: 0,
     width: 1,
   },
   tooltip: {
     position: 'absolute',
     top: 8,
+    left: 0,
     alignSelf: 'flex-start',
     paddingVertical: 6,
     paddingHorizontal: 8,

@@ -39,7 +39,7 @@ type SheetKey =
 
 export default function ActivateScreen() {
   const { colors } = useTheme();
-  const router = useRouter();
+  const { back, push } = useRouter();
   const insets = useSafeAreaInsets();
 
   const [employment, setEmployment] = useState<string>(DEFAULTS.employment);
@@ -54,6 +54,7 @@ export default function ActivateScreen() {
   const [hasOverflow, setHasOverflow] = useState(false);
   const [atBottom, setAtBottom] = useState(false);
   const scrollViewHeight = useRef(0);
+  const scrollContentHeight = useRef(0);
 
   const scrollY = useSharedValue(0);
   const scrolled = useDerivedValue<number>(() => {
@@ -71,7 +72,7 @@ export default function ActivateScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>
       <StatusBar scrolled={scrolled} />
-      <AppBar onBack={() => router.back()} scrolled={scrolled} />
+      <AppBar onBack={back} scrolled={scrolled} />
 
       <Animated.ScrollView
         style={{ flex: 1 }}
@@ -79,9 +80,13 @@ export default function ActivateScreen() {
         showsVerticalScrollIndicator={false}
         onLayout={({ nativeEvent: { layout } }) => {
           scrollViewHeight.current = layout.height;
+          setHasOverflow(scrollContentHeight.current > layout.height + 1);
         }}
         onContentSizeChange={(_w, contentHeight) => {
-          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+          scrollContentHeight.current = contentHeight;
+          if (scrollViewHeight.current > 0) {
+            setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+          }
         }}
         onScroll={onScroll}
         scrollEventThrottle={16}
@@ -126,7 +131,7 @@ export default function ActivateScreen() {
       </Animated.ScrollView>
 
       <StickyCTA atBottom={!hasOverflow || atBottom}>
-        <Button onPress={() => router.push('/affiliation')}>Continue</Button>
+        <Button onPress={() => push('/affiliation')}>Continue</Button>
       </StickyCTA>
 
       <SelectorSheet

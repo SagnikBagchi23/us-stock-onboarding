@@ -34,14 +34,15 @@ const AGREEMENTS = [
 
 export default function AgreementsScreen() {
   const { colors } = useTheme();
-  const router = useRouter();
+  const { back, push } = useRouter();
   const insets = useSafeAreaInsets();
 
-  const [checked, setChecked] = useState<boolean[]>(AGREEMENTS.map(() => true));
+  const [checked, setChecked] = useState<boolean[]>(() => AGREEMENTS.map(() => true));
 
   const [hasOverflow, setHasOverflow] = useState(false);
   const [atBottom, setAtBottom] = useState(false);
   const scrollViewHeight = useRef(0);
+  const scrollContentHeight = useRef(0);
 
   const scrollY = useSharedValue(0);
   const scrolled = useDerivedValue<number>(() => {
@@ -63,7 +64,7 @@ export default function AgreementsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundPrimary, paddingTop: insets.top }]}>
       <StatusBar scrolled={scrolled} />
-      <AppBar onBack={() => router.back()} scrolled={scrolled} />
+      <AppBar onBack={back} scrolled={scrolled} />
 
       <Animated.ScrollView
         style={{ flex: 1 }}
@@ -71,9 +72,13 @@ export default function AgreementsScreen() {
         showsVerticalScrollIndicator={false}
         onLayout={({ nativeEvent: { layout } }) => {
           scrollViewHeight.current = layout.height;
+          setHasOverflow(scrollContentHeight.current > layout.height + 1);
         }}
         onContentSizeChange={(_w, contentHeight) => {
-          setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+          scrollContentHeight.current = contentHeight;
+          if (scrollViewHeight.current > 0) {
+            setHasOverflow(contentHeight > scrollViewHeight.current + 1);
+          }
         }}
         onScroll={onScroll}
         scrollEventThrottle={16}
@@ -106,13 +111,13 @@ export default function AgreementsScreen() {
         {/* Agreement checkboxes */}
         <View style={styles.checkboxList}>
           {AGREEMENTS.map((text, i) => (
-            <CheckboxRow key={i} label={text} checked={checked[i]} onToggle={() => toggle(i)} />
+            <CheckboxRow key={text} label={text} checked={checked[i]} onToggle={() => toggle(i)} />
           ))}
         </View>
       </Animated.ScrollView>
 
       <StickyCTA atBottom={!hasOverflow || atBottom}>
-        <Button onPress={() => router.push('/complete')} disabled={!checked.every(Boolean)}>Agree and continue</Button>
+        <Button onPress={() => push('/complete')} disabled={!checked.every(Boolean)}>Agree and continue</Button>
       </StickyCTA>
     </View>
   );
